@@ -111,14 +111,16 @@ int main(int argc, char** argv) {
     size_t i = 0;       // Index into trace
     double now = 0.0;   // Current simulation time
 
+    // Drive the event loop until all requests have been admitted and completed.
     while (i < trace.size() || !scheduler->empty() || !queue.empty()) {
-        // 1. Admit all trace arrivals with timestamp <= now
+        // 1. Admit all trace arrivals with timestamp <= now.
         while (i < trace.size() && trace[i].arrival_ts <= now) {
             scheduler->enqueue(trace[i]);
             ++i;
         }
 
-        // 2. Dispatch requests while channels are free
+        // 2. Dispatch requests while channels are free. Each dispatch both
+        // dequeues a request and schedules a corresponding completion event.
         while (true) {
             int chan = device.first_free_channel(now);
             if (chan < 0) break;  // No free channels
@@ -134,13 +136,13 @@ int main(int argc, char** argv) {
             queue.push({ req->finish_ts, chan, *req });
         }
 
-        // 3. Process next event (completion)
+        // 3. Process next event (completion) when work is in-flight.
         if (!queue.empty()) {
             now = queue.top().time;             // Advance to next event time
             auto ev = queue.pop();              // Pop event
             metrics.on_finish(ev.request);      // Log stats
         }
-        // 4. No events, fast-forward to next trace arrival
+        // 4. Otherwise fast-forward to the next arrival if more requests exist.
         else if (i < trace.size()) {
             now = trace[i].arrival_ts;
         }

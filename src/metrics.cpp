@@ -10,10 +10,12 @@ Metrics::Metrics(int num_users) {
     reset(num_users);
 }
 
+// reset prepares collectors for |num_users| tenants.
 void Metrics::reset(int num_users) {
     stats_.assign(std::max(num_users, 0), {});
 }
 
+// on_finish accumulates latency and throughput for the provided request.
 void Metrics::on_finish(const Request& req) {
     if (req.user_id < 0) return;
     if (req.user_id >= static_cast<int>(stats_.size()))
@@ -46,6 +48,8 @@ size_t Metrics::completed(int user_id) const {
     return stats_[user_id].completed;
 }
 
+// fairness_index implements Jain's metric while excluding idle users so that
+// workloads with unused queues do not skew the score toward zero.
 double Metrics::fairness_index() const {
     double sum = 0.0;
     double sum_sq = 0.0;
@@ -61,6 +65,7 @@ double Metrics::fairness_index() const {
     return (sum * sum) / (participants * sum_sq);
 }
 
+// save_csv persists a per-user summary so downstream tools can analyze results.
 bool Metrics::save_csv(const std::string& path) const {
     std::filesystem::path file_path(path);
     if (file_path.has_parent_path() && !file_path.parent_path().empty()) {

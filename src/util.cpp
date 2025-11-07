@@ -12,6 +12,7 @@ namespace util {
 
 namespace {
 
+// Converts a textual op (e.g. "read") into the corresponding OpType value.
 OpType parse_op(std::string value) {
     std::transform(value.begin(), value.end(), value.begin(),
                    [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
@@ -24,6 +25,9 @@ OpType parse_op(std::string value) {
 
 } // namespace
 
+// load_trace_csv converts the CSV trace format into Request records ordered by
+// arrival timestamp. Timestamps are provided in microseconds, so they are
+// converted to seconds to match the simulator's floating-point timeline.
 std::vector<Request> load_trace_csv(const std::string& path) {
     std::ifstream in(path);
     if (!in.is_open()) {

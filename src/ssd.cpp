@@ -20,6 +20,7 @@ SSD::SSD(const SimConfig& cfg) : cfg_(cfg) {
     channels_.assign(std::max(cfg_.num_channels, 0), {});
 }
 
+// Dispatch applies the scheduling decision onto the physical channel model.
 double SSD::dispatch(int channel_idx, const Request& r, double now) {
     if (channel_idx < 0 || channel_idx >= static_cast<int>(channels_.size()))
         throw std::out_of_range("Invalid channel index");
@@ -34,6 +35,8 @@ double SSD::dispatch(int channel_idx, const Request& r, double now) {
     return ch.free_at;
 }
 
+// first_free_channel scans channels sequentially; the workload uses small N, so
+// this linear scan is sufficient and keeps the model simple.
 int SSD::first_free_channel(double now) const {
     for (int i = 0; i < static_cast<int>(channels_.size()); ++i) {
         if (channels_[i].free_at <= now)

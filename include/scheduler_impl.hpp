@@ -12,6 +12,7 @@
 
 namespace ssd {
 
+// RoundRobinScheduler cycles through users in order, skipping empty queues.
 class RoundRobinScheduler : public Scheduler {
     std::vector<std::deque<Request>> queues_;
     int next_ = 0;
@@ -28,6 +29,7 @@ public:
         queues_[r.user_id].push_back(r);
     }
 
+    // pick_user returns the next user id that has pending work.
     std::optional<int> pick_user(double) override {
         if (queues_.empty()) return std::nullopt;
 
@@ -56,6 +58,7 @@ public:
     }
 };
 
+// DeficitRoundRobinScheduler enforces byte-level fairness using deficit counters.
 class DeficitRoundRobinScheduler : public Scheduler {
     std::vector<std::deque<Request>> queues_;
     std::vector<int64_t> deficit_;
@@ -88,6 +91,7 @@ public:
         queues_[r.user_id].push_back(r);
     }
 
+    // pick_user adds quantum credit and selects the first user whose request fits.
     std::optional<int> pick_user(double) override {
         if (queues_.empty()) return std::nullopt;
 
@@ -124,6 +128,7 @@ public:
     }
 };
 
+// WeightedFairScheduler approximates WFQ by tagging requests with finish times.
 class WeightedFairScheduler : public Scheduler {
     struct TaggedRequest {
         Request req;
@@ -202,6 +207,7 @@ public:
     }
 };
 
+// StartGapScheduler rotates logical-to-physical user mapping to simulate SGFS.
 class StartGapScheduler : public Scheduler {
     std::unique_ptr<Scheduler> base_;
     int rotate_every_ = 200;
