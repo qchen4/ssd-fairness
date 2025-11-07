@@ -1,0 +1,157 @@
+@startuml ssd_fairness
+skinparam classAttributeIconSize 0
+
+' SSD Fairness Simulator UML Diagram
+'
+' This UML class diagram describes the major components of the
+' improved SSD fairness scheduling simulator.  The design separates
+' scheduling policy from the device model and metrics collection.  A
+' number of scheduler subclasses implement specific algorithms such
+' as round‑robin, deficit round‑robin, weighted fair queuing, and
+' start–gap rotation.  The SSD model exposes a simple API for
+' dispatching requests and computing service times.  Metrics
+' aggregates per‑user statistics.  Events and an event queue drive
+' the discrete‑event simulation.
+
+namespace ssd {
+
+  class Request {
+    + user_id : int
+    + op : OpType
+    + arrival_ts : double
+    + size_bytes : uint32_t
+    + start_ts : double
+    + finish_ts : double
+  }
+
+  enum SchedPolicy {
+    RR,
+    DRR,
+    QFQ,
+    SGFS
+  }
+
+  class Scheduler {
+    <<abstract>>
+    + set_users(n : int)
+    + set_weights(w : vector<double>)
+    + enqueue(req : Request)
+    + pick_user(virtual_time : double) : Optional<int>
+    + pop(user_id : int) : Optional<Request>
+    + empty() : bool
+  }
+
+  class RoundRobinScheduler {
+    - queues_ : vector<queue<Request>>
+    - next_user_ : size_t
+    + set_users(n : int)
+    + set_weights(w : vector<double>)
+    + enqueue(req : Request)
+    + pick_user(virtual_time : double) : Optional<int>
+    + pop(user_id : int) : Optional<Request>
+    + empty() : bool
+  }
+
+  class DeficitRoundRobinScheduler {
+    - queues_ : vector<queue<Request>>
+    - weights_ : vector<double>
+    - deficit_ : vector<double>
+    - quantum_ : double
+    - next_user_ : size_t
+    + set_users(n : int)
+    + set_weights(w : vector<double>)
+    + enqueue(req : Request)
+    + pick_user(virtual_time : double) : Optional<int>
+    + pop(user_id : int) : Optional<Request>
+    + empty() : bool
+  }
+
+  class WeightedFairScheduler {
+    - queues_ : vector<queue<Request>>
+    - weights_ : vector<double>
+    - last_finish_ : vector<double>
+    - active_flows_ : size_t
+    - quantum_ : double
+    + set_users(n : int)
+    + set_weights(w : vector<double>)
+    + enqueue(req : Request)
+    + pick_user(virtual_time : double) : Optional<int>
+    + pop(user_id : int) : Optional<Request>
+    + empty() : bool
+  }
+
+  class StartGapScheduler {
+    - base_ : Scheduler
+    - num_channels_ : int
+    - rotate_interval_ : int
+    - gap_ : int
+    - start_ : int
+    - since_rotate_ : int
+    + set_users(n : int)
+    + set_weights(w : vector<double>)
+    + enqueue(req : Request)
+    + pick_user(virtual_time : double) : Optional<int>
+    + pop(user_id : int) : Optional<Request>
+    + empty() : bool
+    + map_channel(uid : int) : int
+  }
+
+  Scheduler <|-- RoundRobinScheduler
+  Scheduler <|-- DeficitRoundRobinScheduler
+  Scheduler <|-- WeightedFairScheduler
+  Scheduler <|-- StartGapScheduler
+  StartGapScheduler o-- Scheduler : base_
+
+  class SimConfig {
+    + num_users : int
+    + num_channels : int
+    + read_bw_MBps : double
+    + write_bw_MBps : double
+  }
+
+  class ChannelState {
+    + busy : bool
+    + free_at : double
+  }
+
+  class SSD {
+    - cfg_ : SimConfig
+    - channels_ : vector<ChannelState>
+    + dispatch(ch : int, req : Request, now : double) : double
+    + first_free_channel(now : double) : int
+    + read_service_time_s(bytes : uint32_t) : double
+    + write_service_time_s(bytes : uint32_t) : double
+    + num_channels() : int
+  }
+
+  class Metrics {
+    - per_user_ : vector<Stats>
+    + on_finish(req : Request)
+    + average_latency(user_id : int) : double
+    + throughput_bytes(user_id : int) : double
+    + fairness_index() : double
+    + save_csv(filename : string) : bool
+  }
+
+  class Stats {
+    + completed : int
+    + sum_latency : double
+    + total_bytes : double
+  }
+
+  class Event {
+    + time : double
+    + channel : int
+    + req : Request
+  }
+
+  class EventQueue {
+    - events_ : priority_queue<Event>
+    + push(event : Event)
+    + pop() : Event
+    + empty() : bool
+  }
+
+}
+
+@enduml
