@@ -112,18 +112,33 @@ Example:
 Traces are simple CSV files with a header row:
 
 ```
-timestamp,process_id,type,address,size
-0,process1,READ,0xdeadbeef,4096
+timestamp,process_id,user_id,type,address,size
+0,process1,0,READ,0xdeadbeef,4096
 ...
 ```
 
 - `timestamp`: arrival time in **microseconds** since start of simulation.  
-- `process_id`: arbitrary string; mapped to integer user IDs on load.  
+- `process_id`: arbitrary string used for readability or debugging.  
+- `user_id`: integer tenant identifier.  
 - `type`: `READ` or `WRITE` (case-insensitive).  
 - `address`: unused by the current model but retained for compatibility.  
 - `size`: request size in bytes.
 
-`util::load_trace_csv` converts timestamps to seconds, assigns user IDs, and sorts requests by `(arrival_ts, user_id)`.
+The parser also accepts the legacy 5-column format that omits `user_id`. In that case each unique `process_id` is automatically assigned a deterministic user ID (in order of first appearance).
+
+`util::load_trace_csv` converts timestamps to seconds, enforces consistent `(process_id, user_id)` pairs when provided, and sorts requests by `(arrival_ts, user_id)`.
+
+### Linux `blktrace` Input
+
+`util::load_trace_csv` also understands the textual output of `blkparse`/`blktrace`.  
+Provide the raw trace file (e.g., `traces/ssdtrace-sample`) and the loader will:
+
+- Inspect `Q` (queue) events to determine request arrivals.
+- Use the recorded timestamp directly (already in seconds).
+- Derive request size from the sector count (`+ <sectors>`) assuming 512-byte sectors.
+- Treat each `pid:[command]` combination as a distinct process and auto-assign user IDs, mirroring the legacy CSV behavior.
+
+Non-queue blktrace events (`I`, `D`, `C`, etc.) are ignored. This lets you feed SNIA or RocksDB traces captured with `blktrace` straight into the simulator without pre-converting to CSV.
 
 ---
 
