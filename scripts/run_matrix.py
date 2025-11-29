@@ -16,6 +16,8 @@ def parse_stdout(stdout: str) -> Dict[str, float]:
     for line in stdout.splitlines():
         if line.startswith("Fairness Index:"):
             metrics["fairness_index"] = float(line.split(":")[1].strip())
+        elif line.startswith("Throughput Fairness Index:"):
+            metrics["throughput_fairness_index"] = float(line.split(":")[1].strip())
         elif line.startswith("Throughput (MB/s):"):
             metrics["throughput_MBps"] = float(line.split(":")[1].strip())
         elif line.startswith("Average latency"):
@@ -59,7 +61,7 @@ def main() -> None:
     parser.add_argument(
         "--schedulers",
         nargs="*",
-        default=["rr", "drr", "qfq", "sgfs"],
+        default=["fifo", "rr", "drr", "qfq", "flin"],
         help="Scheduler policies to evaluate",
     )
     parser.add_argument(
@@ -90,6 +92,7 @@ def main() -> None:
         "trace",
         "scheduler",
         "fairness_index",
+        "throughput_fairness_index",
         "throughput_MBps",
         "avg_latency_s",
         "completed",

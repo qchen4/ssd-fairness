@@ -5,6 +5,9 @@
 namespace ssd {
 
 std::unique_ptr<Scheduler> make_scheduler(const std::string& policy) {
+    if (policy == "fifo" || policy == "fcfs") {
+        return std::make_unique<FifoScheduler>();
+    }
     if (policy == "rr") {
         return std::make_unique<RoundRobinScheduler>();
     }
@@ -14,10 +17,9 @@ std::unique_ptr<Scheduler> make_scheduler(const std::string& policy) {
     if (policy == "qfq" || policy == "wfq") {
         return std::make_unique<WeightedFairScheduler>();
     }
-    if (policy == "sgfs") {
-        auto base = std::make_unique<WeightedFairScheduler>();
-        return std::make_unique<StartGapScheduler>(std::move(base));
+    if (policy == "flin") {
+        return std::make_unique<FlinScheduler>();
     }
     return nullptr;
-    }
+}
 } // namespace ssd

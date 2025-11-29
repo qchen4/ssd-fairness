@@ -1,7 +1,6 @@
 #include "simulator.hpp"
 
 #include "events.hpp"
-#include "scheduler_impl.hpp"
 #include "ssd.hpp"
 
 #include <stdexcept>
@@ -26,9 +25,6 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
     scheduler->set_quantum(opts_.scheduler.quantum);
     if (!opts_.scheduler.weights.empty()) {
         scheduler->set_weights(opts_.scheduler.weights);
-    }
-    if (auto* sgfs = dynamic_cast<StartGapScheduler*>(scheduler.get())) {
-        sgfs->set_start_gap(opts_.scheduler.sgfs_rotate_every, opts_.scheduler.sgfs_gap);
     }
 
     SSD device(opts_.device_cfg);
@@ -63,6 +59,7 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
         if (!queue.empty()) {
             now = queue.top().time;
             auto ev = queue.pop();
+            scheduler->on_request_finished(ev.request, now, &metrics);
             metrics.on_finish(ev.request);
             ++completed;
         } else if (next_request < trace.size()) {

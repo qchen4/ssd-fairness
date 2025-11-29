@@ -13,8 +13,6 @@ namespace ssd {
 struct SchedulerSettings {
     double quantum = 4096.0;
     std::vector<double> weights;
-    int sgfs_rotate_every = 200;
-    int sgfs_gap = 1;
 };
 
 struct SimulationOptions {

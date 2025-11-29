@@ -17,7 +17,7 @@ fi
 
 # Step 3: Run the simulator
 echo "Running simulation..."
-./build/ssd-fairness --trace "$TRACE" --scheduler qfq --results results/demo.csv
+./build/ssd-fairness --trace "$TRACE" --scheduler flin --results results/demo.csv
 
 # Step 4: Plot results (if plot_results.py exists)
 RESULTS_FILE=results/demo.csv

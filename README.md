@@ -29,7 +29,7 @@ At a high level the simulator repeatedly:
 4. Records per-user metrics (latency, throughput) and Jain’s fairness index.  
 5. Optionally plots results using the helper scripts in `tools/`.
 
-This setup lets you compare fairness-focused schedulers (Round Robin, Deficit Round Robin, Weighted Fair Queuing, Start-Gap Fair Scheduling) under identical workloads.
+This setup lets you compare fairness-focused schedulers (FIFO, Round Robin, Deficit Round Robin, Weighted Fair Queuing, and FLIN) under identical workloads.
 
 ---
 
@@ -67,7 +67,7 @@ This setup lets you compare fairness-focused schedulers (Round Robin, Deficit Ro
 `run.sh` performs the following:
 1. Configures and builds the simulator inside `build/`.  
 2. Generates a small demo workload (using `scripts/generate_traces.py`) into `traces/`.  
-3. Runs the simulator with the generated trace using the QFQ scheduler.  
+3. Runs the simulator with the generated trace using the FLIN scheduler.  
 4. Attempts to plot results (skipped if the CSV lacks per-request data).
 
 ### Manual Invocation
@@ -89,7 +89,7 @@ make -j$(nproc)
 | Option | Description |
 | ------ | ----------- |
 | `-t, --trace PATH` | CSV trace to load (`traces/example.csv` by default). |
-| `-s, --scheduler NAME` | Scheduler policy: `rr`, `drr`, `qfq`, `sgfs`. |
+| `-s, --scheduler NAME` | Scheduler policy: `fifo`, `rr`, `drr`, `qfq`/`wfq`, `flin`. |
 | `-q, --quantum BYTES` | DRR quantum size; forwarded to schedulers that use it. |
 | `-u, --users N` | Override number of users; inferred from trace otherwise. |
 | `-c, --channels N` | Number of SSD channels (default 8). |
@@ -97,15 +97,13 @@ make -j$(nproc)
 | `-w, --write-bw MBPS` | Aggregate write bandwidth (default 1200 MB/s). |
 | `-W, --weights CSV` | Comma-separated per-user weights (applied to WFQ/DRR). |
 | `-o, --results PATH` | Output path for the per-user summary CSV (`results/results.csv` default). |
-| `--sgfs-rotate N` | Rotate interval for SGFS (requests before remapping). |
-| `--sgfs-gap N` | Offset applied during each SGFS rotation. |
 
 Example:
 
 ```bash
 ./build/ssd-fairness \
   --trace traces/example.csv \
-  --scheduler sgfs \
+  --scheduler flin \
   --quantum 4096 \
   --channels 16 \
   --weights 1,1,2,4
@@ -152,10 +150,11 @@ Non-queue blktrace events (`I`, `D`, `C`, etc.) are ignored. This lets you feed 
 
 | Policy | File(s) | Description |
 | ------ | ------- | ----------- |
+| **FIFO / FCFS** | `include/scheduler_impl.hpp` | Global first-come-first-served queue. |
 | **RoundRobin** | `include/scheduler_impl.hpp` | Classic request-per-turn rotation among active users. |
 | **DeficitRoundRobin (DRR)** | `include/scheduler_impl.hpp` | Adds byte-level fairness by granting quanta to each user until its head request fits. Supports per-user weights. |
 | **WeightedFair (WFQ/QFQ)** | `include/scheduler_impl.hpp` | Approximates weighted fair queuing by tagging requests with virtual finish times and always selecting the smallest tag. |
-| **StartGap (SGFS)** | `include/scheduler_impl.hpp` | Wraps another scheduler (WFQ by default) and rotates logical user IDs to mimic spatial fair sharing across SSD channels. |
+| **FLIN** | `include/scheduler_impl.hpp` | Slowdown-aware scheduler that favors flows receiving less than their fair share, using recent service history and a small bias for read-heavy flows. |
 
 All schedulers implement the `Scheduler` interface:
 
@@ -180,7 +179,7 @@ Adding a new policy means subclassing `Scheduler` and wiring it into `main.cpp`.
 
 1. **Event Loop**: `src/simulator.cpp` houses `ssd::Simulator`, which advances simulation time by repeatedly admitting arrivals, dispatching ready work, and processing completion events stored in `ssd::EventQueue`.
 2. **SSD Model**: `ssd::SSD` keeps track of per-channel availability via `ChannelState.free_at`. Dispatch time is `size / (per-channel BW)`, where per-channel bandwidth = aggregate BW / `num_channels`.
-3. **Metrics**: `ssd::Metrics` accumulates per-user latency, throughput, and request counts, then computes Jain’s fairness index over non-idle users.
+3. **Metrics**: `ssd::Metrics` accumulates per-user latency (mean + percentiles), throughput, request counts, and slowdown-style fairness ratios for later analysis.
 4. **Trace Loading**: `ssd::TraceReader` (`src/trace_reader.cpp`) encapsulates CSV/blktrace parsing with deterministic sorting for reuse in tests and scripts.
 
 Key headers:
@@ -196,9 +195,9 @@ Key headers:
 After each run the simulator writes `results/results.csv` (or the path provided to `--results`) with per-user summaries:
 
 ```
-user_id,completed,avg_latency_s,total_bytes
-0,500,0.000812,2097152
-1,500,0.000809,2097152
+user_id,completed,avg_latency_s,p95_latency_s,p99_latency_s,total_bytes,fairness_avg,fairness_ewma
+0,500,0.000812,0.00110,0.00135,2097152,0.97,0.99
+1,500,0.000809,0.00105,0.00130,2097152,1.03,1.01
 ```
 
 It also prints to stdout:
@@ -206,6 +205,7 @@ It also prints to stdout:
 ```
 Simulation complete.
 Fairness Index: 0.994
+Throughput Fairness Index: 0.992
 Throughput (MB/s): 820.4
 Average latency (s): 0.00081
 Results saved to results/results.csv
@@ -220,9 +220,9 @@ Completed requests: 1000 in 1.22s
 (sum_i x_i)^2 / (n * sum_i x_i^2)
 ```
 
-where `x_i` is the throughput (bytes) for user `i`, and `n` counts only users that transferred at least one byte (idle users are ignored to avoid skew).
+where `x_i` is the slowdown-style fairness ratio (`actual_rate / fair_share`) if the scheduler reports it (FLIN does), otherwise it falls back to throughput (bytes). `n` counts only users that recorded data so idle queues are ignored.
 
-If you need per-request latencies for plotting, extend `Metrics::save_csv` or instrument the event loop before completion to dump additional data.
+Tail latencies (P95/P99) are included in the per-user CSV. If you need the full latency distribution, extend `Metrics::save_csv` or instrument the event loop to emit per-request samples.
 
 ---
 

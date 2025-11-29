@@ -7,6 +7,8 @@
 
 namespace ssd {
 
+class Metrics;
+
 /**
  * Base scheduler interface implemented by all scheduling policies.
  *
@@ -32,6 +34,10 @@ public:
     virtual std::optional<int> pick_user(double virtual_time) = 0;
     virtual std::optional<Request> pop(int uid) = 0;
     virtual bool empty() const = 0;
+
+    // Called when a request finishes so schedulers can update accounting.
+    // Default is a no-op for policies that do not need completion feedback.
+    virtual void on_request_finished(const Request&, double /*finish_time*/, Metrics* /*metrics*/) {}
 };
 
 } // namespace ssd

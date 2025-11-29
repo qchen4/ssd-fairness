@@ -15,15 +15,13 @@
 
 int main(int argc, char** argv) {
     std::string trace_path = "traces/example.csv";
-    std::string policy_str = "qfq"; // rr, drr, qfq, sgfs
+    std::string policy_str = "flin"; // fifo, rr, drr, wfq, flin
     double quantum = 4096.0;
     std::string weights_str;
     int override_users = -1;
     int override_channels = -1;
     double read_bw = 2000;
     double write_bw = 1200;
-    int sgfs_rotate_every = 200;
-    int sgfs_gap = 1;
     std::string results_path = "results/results.csv";
 
     static option longopts[] = {
@@ -36,8 +34,6 @@ int main(int argc, char** argv) {
         {"write-bw", required_argument, 0, 'w'},
         {"weights", required_argument, 0, 'W'},
         {"results", required_argument, 0, 'o'},
-        {"sgfs-rotate", required_argument, 0, 0},
-        {"sgfs-gap", required_argument, 0, 0},
         {0,0,0,0}
     };
 
@@ -53,11 +49,6 @@ int main(int argc, char** argv) {
         else if (opt == 'w') write_bw = atof(optarg);
         else if (opt == 'W') weights_str = optarg;
         else if (opt == 'o') results_path = optarg;
-        else if (opt == 0 && std::string(longopts[long_index].name) == "sgfs-rotate") {
-            sgfs_rotate_every = atoi(optarg);
-        } else if (opt == 0 && std::string(longopts[long_index].name) == "sgfs-gap") {
-            sgfs_gap = atoi(optarg);
-        }
     }
 
     std::vector<double> weights;
@@ -83,8 +74,6 @@ int main(int argc, char** argv) {
     ssd::SchedulerSettings sched_settings;
     sched_settings.quantum = quantum;
     sched_settings.weights = weights;
-    sched_settings.sgfs_rotate_every = sgfs_rotate_every;
-    sched_settings.sgfs_gap = sgfs_gap;
 
     ssd::SimulationOptions opts;
     opts.device_cfg = sim_cfg;
@@ -114,9 +103,11 @@ int main(int argc, char** argv) {
     double throughput_MBps = result.finished_at > 0.0
         ? (static_cast<double>(total_bytes) / (1024.0 * 1024.0)) / result.finished_at
         : 0.0;
+    double throughput_fairness = result.metrics.throughput_fairness_index(result.finished_at);
 
     std::cout << "Simulation complete.\n";
     std::cout << "Fairness Index: " << result.metrics.fairness_index() << "\n";
+    std::cout << "Throughput Fairness Index: " << throughput_fairness << "\n";
     std::cout << "Throughput (MB/s): " << throughput_MBps << "\n";
     std::cout << "Average latency (s): " << avg_latency << "\n";
     std::cout << "Results saved to " << results_path << "\n";
