@@ -1,5 +1,3 @@
-user_id,completed,avg_latency_s,total_bytes
-0,242,2.1078e-05,991232
-1,249,2.09995e-05,1019904
-2,262,2.12478e-05,1073152
-3,247,2.1141e-05,1011712
+user_id,completed,avg_latency_s,avg_throughput_bytes_per_s,total_bytes
+0,2,1.5625e-05,2.62144e+08,8192
+1,2,2.60417e-05,1.57286e+08,8192

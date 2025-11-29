@@ -116,7 +116,9 @@ int main(int argc, char** argv) {
         : 0.0;
 
     std::cout << "Simulation complete.\n";
-    std::cout << "Fairness Index: " << result.metrics.fairness_index() << "\n";
+    std::cout << "Fairness Index (combined): " << result.metrics.fairness_index() << "\n";
+    std::cout << "Fairness Index (throughput): " << result.metrics.throughput_fairness_index() << "\n";
+    std::cout << "Fairness Index (latency): " << result.metrics.latency_fairness_index() << "\n";
     std::cout << "Throughput (MB/s): " << throughput_MBps << "\n";
     std::cout << "Average latency (s): " << avg_latency << "\n";
     std::cout << "Results saved to " << results_path << "\n";
