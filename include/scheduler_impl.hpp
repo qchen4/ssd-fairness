@@ -3,7 +3,10 @@
 #include "scheduler.hpp"
 
 #include <algorithm>
+#include <cassert>
+#include <cstdlib>
 #include <deque>
+#include <iostream>
 #include <limits>
 #include <memory>
 #include <optional>
@@ -11,6 +14,19 @@
 #include <vector>
 
 namespace ssd {
+
+namespace detail {
+inline bool sched_debug_enabled() {
+    static bool enabled = std::getenv("SCHED_DEBUG") != nullptr;
+    return enabled;
+}
+
+template <typename... Args>
+void sched_debug(Args&&... args) {
+    if (!sched_debug_enabled()) return;
+    (std::cerr << ... << args) << '\n';
+}
+} // namespace detail
 
 // RoundRobinScheduler cycles through users in order, skipping empty queues.
 class RoundRobinScheduler : public Scheduler {
@@ -27,6 +43,7 @@ public:
         if (r.user_id < 0 || r.user_id >= static_cast<int>(queues_.size()))
             return;
         queues_[r.user_id].push_back(r);
+        detail::sched_debug("[rr enqueue] uid=", r.user_id, " sz=", r.size_bytes);
     }
 
     // pick_user returns the next user id that has pending work.
@@ -37,6 +54,7 @@ public:
             int candidate = (next_ + i) % queues_.size();
             if (!queues_[candidate].empty()) {
                 next_ = (candidate + 1) % queues_.size();
+                detail::sched_debug("[rr pick] uid=", candidate, " next=", next_);
                 return candidate;
             }
         }
@@ -48,6 +66,7 @@ public:
             return std::nullopt;
         Request r = queues_[uid].front();
         queues_[uid].pop_front();
+        detail::sched_debug("[rr pop] uid=", uid, " sz=", r.size_bytes, " remaining=", queues_[uid].size());
         return r;
     }
 
@@ -89,6 +108,7 @@ public:
         if (r.user_id < 0 || r.user_id >= static_cast<int>(queues_.size()))
             return;
         queues_[r.user_id].push_back(r);
+        detail::sched_debug("[drr enqueue] uid=", r.user_id, " sz=", r.size_bytes);
     }
 
     // pick_user adds quantum credit and selects the first user whose request fits.
@@ -106,6 +126,8 @@ public:
             const Request& r = queues_[uid].front();
             if (deficit_[uid] >= static_cast<int64_t>(r.size_bytes)) {
                 next_ = (uid + 1) % queues_.size();
+                detail::sched_debug("[drr pick] uid=", uid, " deficit=", deficit_[uid],
+                                    " need=", r.size_bytes, " next=", next_);
                 return uid;
             }
         }
@@ -119,6 +141,9 @@ public:
         Request r = queues_[uid].front();
         queues_[uid].pop_front();
         deficit_[uid] = std::max<int64_t>(0, deficit_[uid] - static_cast<int64_t>(r.size_bytes));
+        assert(deficit_[uid] >= 0);
+        detail::sched_debug("[drr pop] uid=", uid, " sz=", r.size_bytes,
+                            " new_deficit=", deficit_[uid], " remaining=", queues_[uid].size());
         return r;
     }
 
@@ -140,6 +165,14 @@ class WeightedFairScheduler : public Scheduler {
     std::vector<double> last_finish_;
     double virtual_time_ = 0.0;
     int active_flows_ = 0;
+
+    void validate_active() const {
+        if (!detail::sched_debug_enabled()) return;
+        int observed = 0;
+        for (const auto& q : queues_)
+            if (!q.empty()) ++observed;
+        assert(observed == active_flows_);
+    }
 
 public:
     void set_users(int n) override {
@@ -171,6 +204,9 @@ public:
         bool was_empty = queues_[r.user_id].empty();
         queues_[r.user_id].push_back(TaggedRequest{r, finish_tag});
         if (was_empty) ++active_flows_;
+        detail::sched_debug("[wfq enqueue] uid=", r.user_id, " sz=", r.size_bytes,
+                            " finish_tag=", finish_tag);
+        validate_active();
     }
 
     std::optional<int> pick_user(double now) override {
@@ -188,6 +224,8 @@ public:
             }
         }
         if (best_uid < 0) return std::nullopt;
+        detail::sched_debug("[wfq pick] uid=", best_uid, " finish_tag=",
+                            queues_[best_uid].front().finish_tag, " vt=", virtual_time_);
         return best_uid;
     }
 
@@ -197,6 +235,9 @@ public:
         TaggedRequest tagged = queues_[uid].front();
         queues_[uid].pop_front();
         if (queues_[uid].empty()) --active_flows_;
+        detail::sched_debug("[wfq pop] uid=", uid, " sz=", tagged.req.size_bytes,
+                            " finish_tag=", tagged.finish_tag, " remaining=", queues_[uid].size());
+        validate_active();
         return tagged.req;
     }
 
@@ -239,6 +280,7 @@ public:
 
     void enqueue(const Request& r) override {
         base_->enqueue(r);
+        detail::sched_debug("[sgfs enqueue] uid=", r.user_id);
     }
 
     std::optional<int> pick_user(double now) override {
@@ -254,6 +296,8 @@ public:
 
         int mapped = users_ > 0 ? ( (*uid + start_) % users_) : *uid;
         remap_[mapped] = *uid;
+        detail::sched_debug("[sgfs pick] logical=", mapped, " physical=", *uid,
+                            " start=", start_, " rotate_count=", rotate_count_);
         return mapped;
     }
 
@@ -264,6 +308,7 @@ public:
             actual = it->second;
             remap_.erase(it);
         }
+        detail::sched_debug("[sgfs pop] logical=", uid, " physical=", actual);
         return base_->pop(actual);
     }
 

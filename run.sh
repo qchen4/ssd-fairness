@@ -8,19 +8,19 @@ cmake ..
 make -j$(nproc)
 cd ..
 
-# Step 2: Generate trace (if tools/trace_gen.py exists)
-TRACE=traces/synthetic.csv
-if [ -f tools/trace_gen.py ]; then
-    echo "Generating synthetic trace..."
-    python3 tools/trace_gen.py --processes 4 --requests 1000 --output "$TRACE"
+# Step 2: Generate a fresh demo trace (optional)
+TRACE=${TRACE:-traces/small_mixed.csv}
+if [ -f scripts/generate_traces.py ]; then
+    echo "Generating demo trace..."
+    python3 scripts/generate_traces.py --output-dir traces --workloads small_mixed
 fi
 
 # Step 3: Run the simulator
 echo "Running simulation..."
-./build/ssd-fairness "$TRACE"
+./build/ssd-fairness --trace "$TRACE" --scheduler qfq --results results/demo.csv
 
 # Step 4: Plot results (if plot_results.py exists)
-RESULTS_FILE=build/results.csv
+RESULTS_FILE=results/demo.csv
 if [ -f tools/plot_results.py ]; then
     echo "Plotting results..."
     if grep -q "process_id" "$RESULTS_FILE" 2>/dev/null; then

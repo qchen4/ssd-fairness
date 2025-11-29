@@ -25,6 +25,8 @@ public:
     uint64_t total_bytes(int user_id) const;
     // completed returns the number of finished requests for |user_id|.
     size_t completed(int user_id) const;
+    // users returns the number of tracked users.
+    int users() const { return static_cast<int>(stats_.size()); }
 
     // fairness_index returns Jain's fairness metric over non-idle users.
     double fairness_index() const;

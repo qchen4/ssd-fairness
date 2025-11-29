@@ -1,0 +1,2 @@
+/usr/bin/ar qc libssd-fairness-core.a "CMakeFiles/ssd-fairness-core.dir/src/metrics.cpp.o" "CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.o" "CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.o" "CMakeFiles/ssd-fairness-core.dir/src/simulator.cpp.o" "CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.o" "CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o" "CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o"
+/usr/bin/ranlib libssd-fairness-core.a

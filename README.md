@@ -41,6 +41,9 @@ This setup lets you compare fairness-focused schedulers (Round Robin, Deficit Ro
 | `include/` | Public headers describing the simulator interfaces. |
 | `traces/` | Sample traces (e.g., `example.csv` and `synthetic.csv`). |
 | `tools/` | Optional helpers (`trace_gen.py`, `plot_results.py`). |
+| `scripts/` | Automation helpers (`generate_traces.py`, `run_matrix.py`). |
+| `test_data/` | Generated traces used by tests and the automation harness. |
+| `tests/` | Lightweight C++ unit/integration tests built with CTest. |
 | `run.sh` | Convenience script that builds, runs a trace, and performs plotting. |
 | `uml.puml` | PlantUML diagram summarizing the architecture. |
 
@@ -63,8 +66,8 @@ This setup lets you compare fairness-focused schedulers (Round Robin, Deficit Ro
 
 `run.sh` performs the following:
 1. Configures and builds the simulator inside `build/`.  
-2. Generates `traces/synthetic.csv` via `tools/trace_gen.py` when available.  
-3. Runs the simulator with the generated trace.  
+2. Generates a small demo workload (using `scripts/generate_traces.py`) into `traces/`.  
+3. Runs the simulator with the generated trace using the QFQ scheduler.  
 4. Attempts to plot results (skipped if the CSV lacks per-request data).
 
 ### Manual Invocation
@@ -93,6 +96,9 @@ make -j$(nproc)
 | `-r, --read-bw MBPS` | Aggregate read bandwidth (default 2000 MB/s). |
 | `-w, --write-bw MBPS` | Aggregate write bandwidth (default 1200 MB/s). |
 | `-W, --weights CSV` | Comma-separated per-user weights (applied to WFQ/DRR). |
+| `-o, --results PATH` | Output path for the per-user summary CSV (`results/results.csv` default). |
+| `--sgfs-rotate N` | Rotate interval for SGFS (requests before remapping). |
+| `--sgfs-gap N` | Offset applied during each SGFS rotation. |
 
 Example:
 
@@ -172,9 +178,10 @@ Adding a new policy means subclassing `Scheduler` and wiring it into `main.cpp`.
 
 ## Simulation Internals
 
-1. **Event Loop**: `src/main.cpp` advances simulation time by repeatedly admitting arrivals, dispatching ready work, and processing completion events stored in `ssd::EventQueue`.
+1. **Event Loop**: `src/simulator.cpp` houses `ssd::Simulator`, which advances simulation time by repeatedly admitting arrivals, dispatching ready work, and processing completion events stored in `ssd::EventQueue`.
 2. **SSD Model**: `ssd::SSD` keeps track of per-channel availability via `ChannelState.free_at`. Dispatch time is `size / (per-channel BW)`, where per-channel bandwidth = aggregate BW / `num_channels`.
 3. **Metrics**: `ssd::Metrics` accumulates per-user latency, throughput, and request counts, then computes Jain’s fairness index over non-idle users.
+4. **Trace Loading**: `ssd::TraceReader` (`src/trace_reader.cpp`) encapsulates CSV/blktrace parsing with deterministic sorting for reuse in tests and scripts.
 
 Key headers:
 - `include/events.hpp`: priority-queue wrapper used for device completions.  
@@ -186,7 +193,7 @@ Key headers:
 
 ## Metrics & Outputs
 
-After each run the simulator writes `build/results.csv` with per-user summaries:
+After each run the simulator writes `results/results.csv` (or the path provided to `--results`) with per-user summaries:
 
 ```
 user_id,completed,avg_latency_s,total_bytes
@@ -199,7 +206,10 @@ It also prints to stdout:
 ```
 Simulation complete.
 Fairness Index: 0.994
-Results saved to build/results.csv
+Throughput (MB/s): 820.4
+Average latency (s): 0.00081
+Results saved to results/results.csv
+Completed requests: 1000 in 1.22s
 ```
 
 ### Jain’s Fairness Index
@@ -225,6 +235,14 @@ If you need per-request latencies for plotting, extend `Metrics::save_csv` or in
 3. Re-run `./run.sh`.
 
 The plotting script uses pandas/matplotlib/seaborn; install them via `pip install -r requirements.txt` (requirements file not yet provided).
+
+---
+
+## Testing & Automation
+
+- Build and run the tests: `cmake -S . -B build && cmake --build build && ctest --output-on-failure`. The lightweight harness exercises scheduler ordering, deficit accumulation, trace parsing, and the simulator event loop.
+- Deterministic workload traces live in `test_data/traces`; regenerate them with `python3 scripts/generate_traces.py --output-dir test_data/traces`.
+- Compare schedulers across all test traces with `python3 scripts/run_matrix.py --binary build/ssd-fairness --traces test_data/traces --output-dir results/matrix` (summary written to `results/matrix/summary.csv`).
 
 ---
 

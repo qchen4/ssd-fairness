@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/hice1/qchen438/Documents/ssd-fairness/build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
@@ -117,6 +127,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named ssd-fairness-core
+
+# Build rule for target.
+ssd-fairness-core: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ssd-fairness-core
+.PHONY : ssd-fairness-core
+
+# fast build rule for target.
+ssd-fairness-core/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/build
+.PHONY : ssd-fairness-core/fast
+
+#=============================================================================
 # Target rules for targets named ssd-fairness
 
 # Build rule for target.
@@ -128,6 +151,19 @@ ssd-fairness: cmake_check_build_system
 ssd-fairness/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/build
 .PHONY : ssd-fairness/fast
+
+#=============================================================================
+# Target rules for targets named ssd-fairness-tests
+
+# Build rule for target.
+ssd-fairness-tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ssd-fairness-tests
+.PHONY : ssd-fairness-tests
+
+# fast build rule for target.
+ssd-fairness-tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/build
+.PHONY : ssd-fairness-tests/fast
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -158,7 +194,7 @@ src/metrics.o: src/metrics.cpp.o
 
 # target to build an object file
 src/metrics.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/metrics.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/metrics.cpp.o
 .PHONY : src/metrics.cpp.o
 
 src/metrics.i: src/metrics.cpp.i
@@ -166,7 +202,7 @@ src/metrics.i: src/metrics.cpp.i
 
 # target to preprocess a source file
 src/metrics.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/metrics.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/metrics.cpp.i
 .PHONY : src/metrics.cpp.i
 
 src/metrics.s: src/metrics.cpp.s
@@ -174,7 +210,7 @@ src/metrics.s: src/metrics.cpp.s
 
 # target to generate assembly for a file
 src/metrics.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/metrics.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/metrics.cpp.s
 .PHONY : src/metrics.cpp.s
 
 src/scheduler.o: src/scheduler.cpp.o
@@ -182,7 +218,7 @@ src/scheduler.o: src/scheduler.cpp.o
 
 # target to build an object file
 src/scheduler.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/scheduler.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.o
 .PHONY : src/scheduler.cpp.o
 
 src/scheduler.i: src/scheduler.cpp.i
@@ -190,7 +226,7 @@ src/scheduler.i: src/scheduler.cpp.i
 
 # target to preprocess a source file
 src/scheduler.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/scheduler.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.i
 .PHONY : src/scheduler.cpp.i
 
 src/scheduler.s: src/scheduler.cpp.s
@@ -198,15 +234,63 @@ src/scheduler.s: src/scheduler.cpp.s
 
 # target to generate assembly for a file
 src/scheduler.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/scheduler.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.s
 .PHONY : src/scheduler.cpp.s
+
+src/scheduler_factory.o: src/scheduler_factory.cpp.o
+.PHONY : src/scheduler_factory.o
+
+# target to build an object file
+src/scheduler_factory.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.o
+.PHONY : src/scheduler_factory.cpp.o
+
+src/scheduler_factory.i: src/scheduler_factory.cpp.i
+.PHONY : src/scheduler_factory.i
+
+# target to preprocess a source file
+src/scheduler_factory.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.i
+.PHONY : src/scheduler_factory.cpp.i
+
+src/scheduler_factory.s: src/scheduler_factory.cpp.s
+.PHONY : src/scheduler_factory.s
+
+# target to generate assembly for a file
+src/scheduler_factory.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.s
+.PHONY : src/scheduler_factory.cpp.s
+
+src/simulator.o: src/simulator.cpp.o
+.PHONY : src/simulator.o
+
+# target to build an object file
+src/simulator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/simulator.cpp.o
+.PHONY : src/simulator.cpp.o
+
+src/simulator.i: src/simulator.cpp.i
+.PHONY : src/simulator.i
+
+# target to preprocess a source file
+src/simulator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/simulator.cpp.i
+.PHONY : src/simulator.cpp.i
+
+src/simulator.s: src/simulator.cpp.s
+.PHONY : src/simulator.s
+
+# target to generate assembly for a file
+src/simulator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/simulator.cpp.s
+.PHONY : src/simulator.cpp.s
 
 src/ssd.o: src/ssd.cpp.o
 .PHONY : src/ssd.o
 
 # target to build an object file
 src/ssd.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/ssd.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.o
 .PHONY : src/ssd.cpp.o
 
 src/ssd.i: src/ssd.cpp.i
@@ -214,7 +298,7 @@ src/ssd.i: src/ssd.cpp.i
 
 # target to preprocess a source file
 src/ssd.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/ssd.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.i
 .PHONY : src/ssd.cpp.i
 
 src/ssd.s: src/ssd.cpp.s
@@ -222,15 +306,39 @@ src/ssd.s: src/ssd.cpp.s
 
 # target to generate assembly for a file
 src/ssd.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/ssd.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.s
 .PHONY : src/ssd.cpp.s
+
+src/trace_reader.o: src/trace_reader.cpp.o
+.PHONY : src/trace_reader.o
+
+# target to build an object file
+src/trace_reader.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o
+.PHONY : src/trace_reader.cpp.o
+
+src/trace_reader.i: src/trace_reader.cpp.i
+.PHONY : src/trace_reader.i
+
+# target to preprocess a source file
+src/trace_reader.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.i
+.PHONY : src/trace_reader.cpp.i
+
+src/trace_reader.s: src/trace_reader.cpp.s
+.PHONY : src/trace_reader.s
+
+# target to generate assembly for a file
+src/trace_reader.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.s
+.PHONY : src/trace_reader.cpp.s
 
 src/util.o: src/util.cpp.o
 .PHONY : src/util.o
 
 # target to build an object file
 src/util.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/util.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o
 .PHONY : src/util.cpp.o
 
 src/util.i: src/util.cpp.i
@@ -238,7 +346,7 @@ src/util.i: src/util.cpp.i
 
 # target to preprocess a source file
 src/util.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/util.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/util.cpp.i
 .PHONY : src/util.cpp.i
 
 src/util.s: src/util.cpp.s
@@ -246,8 +354,104 @@ src/util.s: src/util.cpp.s
 
 # target to generate assembly for a file
 src/util.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness.dir/build.make CMakeFiles/ssd-fairness.dir/src/util.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/util.cpp.s
 .PHONY : src/util.cpp.s
+
+tests/main.o: tests/main.cpp.o
+.PHONY : tests/main.o
+
+# target to build an object file
+tests/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/main.cpp.o
+.PHONY : tests/main.cpp.o
+
+tests/main.i: tests/main.cpp.i
+.PHONY : tests/main.i
+
+# target to preprocess a source file
+tests/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/main.cpp.i
+.PHONY : tests/main.cpp.i
+
+tests/main.s: tests/main.cpp.s
+.PHONY : tests/main.s
+
+# target to generate assembly for a file
+tests/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/main.cpp.s
+.PHONY : tests/main.cpp.s
+
+tests/metrics_tests.o: tests/metrics_tests.cpp.o
+.PHONY : tests/metrics_tests.o
+
+# target to build an object file
+tests/metrics_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/metrics_tests.cpp.o
+.PHONY : tests/metrics_tests.cpp.o
+
+tests/metrics_tests.i: tests/metrics_tests.cpp.i
+.PHONY : tests/metrics_tests.i
+
+# target to preprocess a source file
+tests/metrics_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/metrics_tests.cpp.i
+.PHONY : tests/metrics_tests.cpp.i
+
+tests/metrics_tests.s: tests/metrics_tests.cpp.s
+.PHONY : tests/metrics_tests.s
+
+# target to generate assembly for a file
+tests/metrics_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/metrics_tests.cpp.s
+.PHONY : tests/metrics_tests.cpp.s
+
+tests/scheduler_tests.o: tests/scheduler_tests.cpp.o
+.PHONY : tests/scheduler_tests.o
+
+# target to build an object file
+tests/scheduler_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/scheduler_tests.cpp.o
+.PHONY : tests/scheduler_tests.cpp.o
+
+tests/scheduler_tests.i: tests/scheduler_tests.cpp.i
+.PHONY : tests/scheduler_tests.i
+
+# target to preprocess a source file
+tests/scheduler_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/scheduler_tests.cpp.i
+.PHONY : tests/scheduler_tests.cpp.i
+
+tests/scheduler_tests.s: tests/scheduler_tests.cpp.s
+.PHONY : tests/scheduler_tests.s
+
+# target to generate assembly for a file
+tests/scheduler_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/scheduler_tests.cpp.s
+.PHONY : tests/scheduler_tests.cpp.s
+
+tests/simulator_tests.o: tests/simulator_tests.cpp.o
+.PHONY : tests/simulator_tests.o
+
+# target to build an object file
+tests/simulator_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/simulator_tests.cpp.o
+.PHONY : tests/simulator_tests.cpp.o
+
+tests/simulator_tests.i: tests/simulator_tests.cpp.i
+.PHONY : tests/simulator_tests.i
+
+# target to preprocess a source file
+tests/simulator_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/simulator_tests.cpp.i
+.PHONY : tests/simulator_tests.cpp.i
+
+tests/simulator_tests.s: tests/simulator_tests.cpp.s
+.PHONY : tests/simulator_tests.s
+
+# target to generate assembly for a file
+tests/simulator_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/simulator_tests.cpp.s
+.PHONY : tests/simulator_tests.cpp.s
 
 # Help Target
 help:
@@ -257,7 +461,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... ssd-fairness"
+	@echo "... ssd-fairness-core"
+	@echo "... ssd-fairness-tests"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
@@ -267,12 +474,33 @@ help:
 	@echo "... src/scheduler.o"
 	@echo "... src/scheduler.i"
 	@echo "... src/scheduler.s"
+	@echo "... src/scheduler_factory.o"
+	@echo "... src/scheduler_factory.i"
+	@echo "... src/scheduler_factory.s"
+	@echo "... src/simulator.o"
+	@echo "... src/simulator.i"
+	@echo "... src/simulator.s"
 	@echo "... src/ssd.o"
 	@echo "... src/ssd.i"
 	@echo "... src/ssd.s"
+	@echo "... src/trace_reader.o"
+	@echo "... src/trace_reader.i"
+	@echo "... src/trace_reader.s"
 	@echo "... src/util.o"
 	@echo "... src/util.i"
 	@echo "... src/util.s"
+	@echo "... tests/main.o"
+	@echo "... tests/main.i"
+	@echo "... tests/main.s"
+	@echo "... tests/metrics_tests.o"
+	@echo "... tests/metrics_tests.i"
+	@echo "... tests/metrics_tests.s"
+	@echo "... tests/scheduler_tests.o"
+	@echo "... tests/scheduler_tests.i"
+	@echo "... tests/scheduler_tests.s"
+	@echo "... tests/simulator_tests.o"
+	@echo "... tests/simulator_tests.i"
+	@echo "... tests/simulator_tests.s"
 .PHONY : help
 
 

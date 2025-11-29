@@ -1,0 +1,7 @@
+timestamp,process_id,user_id,type,address,size
+0,userA,0,READ,0,4096
+0,userB,1,READ,0,4096
+1000,userA,0,WRITE,0,8192
+1000,userB,1,READ,0,4096
+2000,userA,0,READ,0,4096
+3000,userB,1,WRITE,0,16384
