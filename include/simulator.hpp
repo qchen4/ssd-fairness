@@ -1,3 +1,4 @@
+// Simulator entry points for running SSD fairness experiments.
 #pragma once
 
 #include "metrics.hpp"
@@ -11,21 +12,21 @@
 namespace ssd {
 
 struct SchedulerSettings {
-    double quantum = 4096.0;
-    std::vector<double> weights;
+    double quantum = 4096.0;          // DRR quantum or similar byte credit.
+    std::vector<double> weights;      // Optional per-user weights.
 };
 
 struct SimulationOptions {
-    SimConfig device_cfg;
-    SchedulerSettings scheduler;
-    std::string results_path = "results/results.csv";
-    bool write_results = true;
+    SimConfig device_cfg;                     // SSD model configuration.
+    SchedulerSettings scheduler;              // Scheduler tuning knobs.
+    std::string results_path = "results/results.csv"; // Per-user CSV output.
+    bool write_results = true;                // Enable CSV emission.
 };
 
 struct SimulationResult {
-    Metrics metrics;
-    double finished_at = 0.0;
-    size_t completed_requests = 0;
+    Metrics metrics;              // Final per-user metrics.
+    double finished_at = 0.0;     // Completion time in seconds.
+    size_t completed_requests = 0;// Number of finished requests.
 };
 
 // Simulator owns the event loop that drives requests through the device and
@@ -34,6 +35,7 @@ class Simulator {
 public:
     explicit Simulator(SimulationOptions opts);
 
+    // Runs a trace through the simulator using the provided scheduler.
     SimulationResult run(std::unique_ptr<Scheduler> scheduler,
                          const std::vector<Request>& trace) const;
 

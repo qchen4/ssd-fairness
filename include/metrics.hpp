@@ -1,3 +1,4 @@
+// Metrics helpers for collecting latency, throughput, and fairness statistics.
 #pragma once
 
 #include "types.hpp"
@@ -14,6 +15,7 @@ class Metrics {
 public:
     explicit Metrics(int num_users = 0);
 
+    // Resets internal aggregations for |num_users| tenants.
     void reset(int num_users);
 
     // on_finish ingests a completed request and updates aggregates.

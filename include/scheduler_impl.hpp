@@ -1,3 +1,4 @@
+// Scheduler implementations for SSD fairness experiments.
 #pragma once
 
 #include "metrics.hpp"
@@ -17,6 +18,8 @@
 namespace ssd {
 
 namespace detail {
+// Lightweight debug helpers gated by the SCHED_DEBUG env var so the hot path
+// stays fast when tracing is disabled.
 inline bool sched_debug_enabled() {
     static bool enabled = std::getenv("SCHED_DEBUG") != nullptr;
     return enabled;
@@ -30,9 +33,10 @@ void sched_debug(Args&&... args) {
 } // namespace detail
 
 // FifoScheduler serves requests strictly in arrival order.
+// Pros: high throughput, simple. Cons: no per-flow isolation/fairness.
 class FifoScheduler : public Scheduler {
-    std::deque<Request> queue_;
-    int users_ = 0;
+    std::deque<Request> queue_; // Single global queue in arrival order.
+    int users_ = 0;             // Cached number of tenants for bounds checks.
 
 public:
     void set_users(int n) override {
@@ -48,7 +52,7 @@ public:
 
     std::optional<int> pick_user(double) override {
         if (queue_.empty()) return std::nullopt;
-        return queue_.front().user_id;
+        return queue_.front().user_id; // Always dispatch the oldest request.
     }
 
     std::optional<Request> pop(int uid) override {
@@ -64,9 +68,10 @@ public:
 };
 
 // RoundRobinScheduler cycles through users in order, skipping empty queues.
+// Provides per-flow isolation at the granularity of one request per turn.
 class RoundRobinScheduler : public Scheduler {
-    std::vector<std::deque<Request>> queues_;
-    int next_ = 0;
+    std::vector<std::deque<Request>> queues_; // Per-user FIFOs.
+    int next_ = 0;                            // Next user slot to probe.
 
 public:
     void set_users(int n) override {
@@ -113,12 +118,13 @@ public:
 };
 
 // DeficitRoundRobinScheduler enforces byte-level fairness using deficit counters.
+// Larger requests consume more credit; weights scale the quantum per user.
 class DeficitRoundRobinScheduler : public Scheduler {
-    std::vector<std::deque<Request>> queues_;
-    std::vector<int64_t> deficit_;
-    std::vector<double> weights_;
-    double quantum_ = 4096.0;
-    int next_ = 0;
+    std::vector<std::deque<Request>> queues_; // Per-user FIFOs.
+    std::vector<int64_t> deficit_;            // Byte credits carried across rounds.
+    std::vector<double> weights_;             // Optional per-user weights.
+    double quantum_ = 4096.0;                 // Base quantum in bytes.
+    int next_ = 0;                            // Next user slot to probe.
 
 public:
     void set_users(int n) override {
@@ -189,17 +195,18 @@ public:
 };
 
 // WeightedFairScheduler approximates WFQ by tagging requests with finish times.
+// Always serves the smallest virtual finish tag to approximate GPS service.
 class WeightedFairScheduler : public Scheduler {
     struct TaggedRequest {
         Request req;
-        double finish_tag = 0.0;
+        double finish_tag = 0.0; // Virtual finish time used for selection.
     };
 
-    std::vector<std::deque<TaggedRequest>> queues_;
-    std::vector<double> weights_;
-    std::vector<double> last_finish_;
-    double virtual_time_ = 0.0;
-    int active_flows_ = 0;
+    std::vector<std::deque<TaggedRequest>> queues_; // Per-user tagged queues.
+    std::vector<double> weights_;                   // WFQ weights per flow.
+    std::vector<double> last_finish_;               // Last finish tag per flow.
+    double virtual_time_ = 0.0;                     // System virtual time.
+    int active_flows_ = 0;                          // Number of non-empty queues.
 
     void validate_active() const {
         if (!detail::sched_debug_enabled()) return;
@@ -233,7 +240,9 @@ public:
             return;
 
         double weight = weights_[r.user_id];
+        // Virtual start is the later of the user's last finish and system VT.
         double start_tag = std::max(last_finish_[r.user_id], virtual_time_);
+        // Finish tag grows with size and inversely with weight (higher weight -> smaller tag).
         double finish_tag = start_tag + static_cast<double>(r.size_bytes) / weight;
         last_finish_[r.user_id] = finish_tag;
 
@@ -290,6 +299,8 @@ public:
 // It tracks recent service per flow, estimates actual vs. fair share, and
 // prioritizes the most under-served flow while giving a slight preference to
 // read-heavy tenants.
+// Key idea: equalize slowdown = (actual service / fair share) across flows,
+// letting GC/interference be observed implicitly via actual completion bytes.
 class FlinScheduler : public Scheduler {
     struct FlowStats {
         std::deque<Request> queue;
@@ -308,11 +319,12 @@ class FlinScheduler : public Scheduler {
     double read_bias_strength_ = 0.15;// Secondary bias toward read-heavy flows.
     double starvation_window_ = 0.2;  // Ensure a flow that waits >= this gets a boost.
 
-    static constexpr double kEpsilon = 1e-9;
+    static constexpr double kEpsilon = 1e-9; // Guard against divide-by-zero.
 
     void decay_flow(FlowStats& f, double now) const {
         double dt = now - f.last_update;
         if (dt <= 0.0) return;
+        // Exponential decay approximates a sliding time window of recent service.
         double factor = std::exp(-dt / window_sec_);
         f.served_bytes *= factor;
         f.last_update = now;
@@ -328,6 +340,7 @@ class FlinScheduler : public Scheduler {
         int active = 0;
         for (auto& f : flows_) {
             decay_flow(f, now);
+            // Treat flows that have either backlog or recent service as active.
             if (!f.queue.empty() || f.served_bytes > 1.0) {
                 total += f.served_bytes;
                 ++active;
@@ -355,7 +368,7 @@ public:
 
         auto [total_served, active] = update_totals(now);
         if (active == 0) return std::nullopt;
-        double share = fair_share(total_served, active);
+        double share = fair_share(total_served, active); // Ideal bytes served per active flow.
 
         int best_uid = -1;
         double best_score = std::numeric_limits<double>::infinity();
@@ -364,13 +377,16 @@ public:
             auto& f = flows_[uid];
             if (f.queue.empty()) continue;
 
+            // Slowdown proxy: actual service vs. fair share. Smaller => under-served.
             double fairness_ratio = share > kEpsilon ? f.served_bytes / share : 0.0;
             // If the flow has not received service recently, treat it as heavily under-served.
             if (f.served_bytes < kEpsilon && share > 0.0) fairness_ratio = 0.0;
 
+            // Favor read-heavy flows slightly to offset GC / program interference.
             double read_bias = 1.0 - read_bias_strength_ * f.read_fraction;
             read_bias = std::clamp(read_bias, 0.7, 1.0);
 
+            // Starvation guard: flows idle for long receive a multiplicative boost.
             double starvation = 1.0;
             if (now - f.last_finish > starvation_window_) starvation = 0.5;
 
@@ -406,6 +422,7 @@ public:
         if (req.user_id < 0 || req.user_id >= static_cast<int>(flows_.size()))
             return;
 
+        // Update decayed service totals to include time elapsed since last event.
         auto [total_served, active] = update_totals(finish_time);
         auto& f = flows_[req.user_id];
         f.served_bytes += req.size_bytes;
@@ -418,15 +435,15 @@ public:
         double share = fair_share(total_served, active);
         double fairness_ratio = share > kEpsilon ? f.served_bytes / share : 1.0;
 
+        // Smooth fairness ratio to avoid oscillations in selection.
         f.fairness_ewma = (1.0 - fairness_alpha_) * f.fairness_ewma +
                           fairness_alpha_ * fairness_ratio;
 
         double is_read = req.op == OpType::READ ? 1.0 : 0.0;
         f.read_fraction = (1.0 - read_alpha_) * f.read_fraction + read_alpha_ * is_read;
 
-        if (metrics) {
-            metrics->record_fairness(req.user_id, fairness_ratio, f.fairness_ewma);
-        }
+        // Export fairness info so metrics can log slowdown per flow.
+        if (metrics) metrics->record_fairness(req.user_id, fairness_ratio, f.fairness_ewma);
 
         detail::sched_debug("[flin finish] uid=", req.user_id, " served_bytes=", f.served_bytes,
                             " share=", share, " fairness=", fairness_ratio,

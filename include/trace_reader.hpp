@@ -1,3 +1,4 @@
+// TraceReader interface for loading request traces into memory.
 #pragma once
 
 #include "types.hpp"
@@ -14,7 +15,7 @@ namespace ssd {
 class TraceReader {
 public:
     struct Options {
-        bool sort_by_arrival = true; // enforce deterministic order
+        bool sort_by_arrival = true; // Enforce deterministic order if true.
     };
 
     TraceReader();
