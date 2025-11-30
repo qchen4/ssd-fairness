@@ -3,6 +3,7 @@
 #include "events.hpp"
 #include "ssd.hpp"
 
+#include <algorithm>
 #include <stdexcept>
 #include <utility>
 
@@ -16,10 +17,14 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
         throw std::invalid_argument("Simulator::run requires a scheduler instance");
     }
 
-    int num_users = 0;
-    for (const auto& r : trace)
-        if (r.user_id + 1 > num_users)
-            num_users = r.user_id + 1;
+    int inferred_users = 0;
+    for (const auto& r : trace) {
+        if (r.user_id >= 0 && r.user_id + 1 > inferred_users)
+            inferred_users = r.user_id + 1;
+    }
+    int num_users = inferred_users;
+    if (opts_.user_override > 0)
+        num_users = std::max(num_users, opts_.user_override);
 
     scheduler->set_users(num_users);
     scheduler->set_quantum(opts_.scheduler.quantum);

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <fstream>
 #include <limits>
 #include <sstream>
@@ -34,7 +35,8 @@ bool looks_like_header(const std::string& line) {
     if (first_field.empty()) return true;
     try {
         size_t consumed = 0;
-        std::stoll(first_field, &consumed);
+        double value = std::stod(first_field, &consumed);
+        if (!std::isfinite(value)) return true;
         for (; consumed < first_field.size(); ++consumed) {
             if (!std::isspace(static_cast<unsigned char>(first_field[consumed])))
                 return true;
@@ -57,7 +59,11 @@ double parse_timestamp_seconds(const std::string& value, size_t line_no) {
 
 int parse_user_id_field(const std::string& value, size_t line_no) {
     try {
-        return std::stoi(value);
+        int parsed = std::stoi(value);
+        if (parsed < 0) {
+            throw std::runtime_error("negative user_id");
+        }
+        return parsed;
     } catch (const std::exception& e) {
         throw std::runtime_error("Failed to parse user_id on line " +
                                  std::to_string(line_no) + ": " + e.what());

@@ -21,6 +21,7 @@ struct SimulationOptions {
     SchedulerSettings scheduler;              // Scheduler tuning knobs.
     std::string results_path = "results/results.csv"; // Per-user CSV output.
     bool write_results = true;                // Enable CSV emission.
+    int user_override = 0;                    // >0 forces at least this many users.
 };
 
 struct SimulationResult {
