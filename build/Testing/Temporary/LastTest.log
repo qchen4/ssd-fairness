@@ -1,10 +1,10 @@
-Start testing: Nov 29 18:22 EST
+Start testing: Nov 30 03:13 EST
 ----------------------------------------------------------
 1/1 Testing: ssd-fairness-tests
 1/1 Test: ssd-fairness-tests
 Command: "/home/hice1/qchen438/Documents/ssd-fairness/build/ssd-fairness-tests"
 Directory: /home/hice1/qchen438/Documents/ssd-fairness/build
-"ssd-fairness-tests" start time: Nov 29 18:22 EST
+"ssd-fairness-tests" start time: Nov 30 03:13 EST
 Output:
 ----------------------------------------------------------
 [PASS] FairnessSkipsIdleUsers
@@ -13,13 +13,16 @@ Output:
 [PASS] WeightedFairHonorsWeights
 [PASS] SimulatorCompletesTraceAndCalculatesFairness
 [PASS] TraceReaderSortsAndAssignsUsers
-Ran 6 tests: 6 passed, 0 failed
+[PASS] WearFtlAvoidsMostWornBlockForHotWrites
+[PASS] WearFtlIncrementsEraseCountsOnWriteCompletion
+[PASS] WearSchedulerProducesWearStats
+Ran 9 tests: 9 passed, 0 failed
 <end of output>
-Test time =   0.21 sec
+Test time =   0.27 sec
 ----------------------------------------------------------
 Test Passed.
-"ssd-fairness-tests" end time: Nov 29 18:22 EST
+"ssd-fairness-tests" end time: Nov 30 03:13 EST
 "ssd-fairness-tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Nov 29 18:22 EST
+End testing: Nov 30 03:13 EST

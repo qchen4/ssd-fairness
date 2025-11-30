@@ -165,6 +165,30 @@ ssd-fairness-tests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/build
 .PHONY : ssd-fairness-tests/fast
 
+src/ftl_wear.o: src/ftl_wear.cpp.o
+.PHONY : src/ftl_wear.o
+
+# target to build an object file
+src/ftl_wear.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o
+.PHONY : src/ftl_wear.cpp.o
+
+src/ftl_wear.i: src/ftl_wear.cpp.i
+.PHONY : src/ftl_wear.i
+
+# target to preprocess a source file
+src/ftl_wear.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.i
+.PHONY : src/ftl_wear.cpp.i
+
+src/ftl_wear.s: src/ftl_wear.cpp.s
+.PHONY : src/ftl_wear.s
+
+# target to generate assembly for a file
+src/ftl_wear.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-core.dir/build.make CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.s
+.PHONY : src/ftl_wear.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -453,6 +477,30 @@ tests/simulator_tests.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/simulator_tests.cpp.s
 .PHONY : tests/simulator_tests.cpp.s
 
+tests/wear_tests.o: tests/wear_tests.cpp.o
+.PHONY : tests/wear_tests.o
+
+# target to build an object file
+tests/wear_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/wear_tests.cpp.o
+.PHONY : tests/wear_tests.cpp.o
+
+tests/wear_tests.i: tests/wear_tests.cpp.i
+.PHONY : tests/wear_tests.i
+
+# target to preprocess a source file
+tests/wear_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/wear_tests.cpp.i
+.PHONY : tests/wear_tests.cpp.i
+
+tests/wear_tests.s: tests/wear_tests.cpp.s
+.PHONY : tests/wear_tests.s
+
+# target to generate assembly for a file
+tests/wear_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ssd-fairness-tests.dir/build.make CMakeFiles/ssd-fairness-tests.dir/tests/wear_tests.cpp.s
+.PHONY : tests/wear_tests.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -465,6 +513,9 @@ help:
 	@echo "... ssd-fairness"
 	@echo "... ssd-fairness-core"
 	@echo "... ssd-fairness-tests"
+	@echo "... src/ftl_wear.o"
+	@echo "... src/ftl_wear.i"
+	@echo "... src/ftl_wear.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
@@ -501,6 +552,9 @@ help:
 	@echo "... tests/simulator_tests.o"
 	@echo "... tests/simulator_tests.i"
 	@echo "... tests/simulator_tests.s"
+	@echo "... tests/wear_tests.o"
+	@echo "... tests/wear_tests.i"
+	@echo "... tests/wear_tests.s"
 .PHONY : help
 
 

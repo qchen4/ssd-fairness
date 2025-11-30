@@ -109,12 +109,13 @@ std::vector<Request> TraceReader::load_csv(const std::string& path) const {
     bool saw_data_line = false;
 
     auto append_request = [&requests](int uid, OpType op, double ts_seconds,
-                                      uint32_t size_bytes) {
+                                      uint32_t size_bytes, std::uint64_t lba_bytes) {
         Request req{};
         req.user_id = uid;
         req.op = op;
         req.arrival_ts = ts_seconds;
         req.size_bytes = size_bytes;
+        req.lba = lba_bytes;
         req.start_ts = 0.0;
         req.finish_ts = 0.0;
         requests.push_back(req);
@@ -132,11 +133,32 @@ std::vector<Request> TraceReader::load_csv(const std::string& path) const {
         }
         if (tokens.empty()) return;
 
+        auto parse_lba_bytes = [&](const std::string& field, size_t line) -> std::uint64_t {
+            if (field.empty())
+                return 0;
+            try {
+                std::size_t idx = 0;
+                std::uint64_t value = 0;
+                if (field.size() > 2 && (field[0] == '0') &&
+                    (field[1] == 'x' || field[1] == 'X')) {
+                    value = std::stoull(field, &idx, 16);
+                } else {
+                    value = std::stoull(field, &idx, 10);
+                }
+                (void)idx;
+                return value;
+            } catch (const std::exception&) {
+                // Keep behavior robust: on malformed address just fall back to 0.
+                return 0;
+            }
+        };
+
         if (tokens.size() == 6) {
             double ts_seconds = parse_timestamp_seconds(tokens[0], current_line);
             const std::string& process_id = tokens[1];
             int declared_uid = parse_user_id_field(tokens[2], current_line);
             OpType op = parse_op(tokens[3]);
+            std::uint64_t lba_bytes = parse_lba_bytes(tokens[4], current_line);
             uint32_t size_bytes = parse_size_field(tokens[5], current_line);
 
             auto [it, inserted] = process_user_ids.emplace(process_id, declared_uid);
@@ -147,7 +169,7 @@ std::vector<Request> TraceReader::load_csv(const std::string& path) const {
                                          std::to_string(it->second) + " vs " +
                                          std::to_string(declared_uid) + ")");
             }
-            append_request(declared_uid, op, ts_seconds, size_bytes);
+            append_request(declared_uid, op, ts_seconds, size_bytes, lba_bytes);
             return;
         }
 
@@ -155,13 +177,14 @@ std::vector<Request> TraceReader::load_csv(const std::string& path) const {
             double ts_seconds = parse_timestamp_seconds(tokens[0], current_line);
             const std::string& process_id = tokens[1];
             OpType op = parse_op(tokens[2]);
+            std::uint64_t lba_bytes = parse_lba_bytes(tokens[3], current_line);
             uint32_t size_bytes = parse_size_field(tokens[4], current_line);
 
             auto [it, inserted] =
                 process_user_ids.emplace(process_id, next_auto_user_id);
             if (inserted) ++next_auto_user_id;
 
-            append_request(it->second, op, ts_seconds, size_bytes);
+            append_request(it->second, op, ts_seconds, size_bytes, lba_bytes);
             return;
         }
 
@@ -210,6 +233,13 @@ std::vector<Request> TraceReader::load_csv(const std::string& path) const {
                 return true;
             }
             uint32_t size_bytes = static_cast<uint32_t>(bytes64);
+            std::uint64_t lba_bytes = 0;
+            try {
+                std::uint64_t lba_sectors = std::stoull(lba_str);
+                lba_bytes = lba_sectors * static_cast<std::uint64_t>(kSectorSizeBytes);
+            } catch (const std::exception&) {
+                lba_bytes = 0;
+            }
 
             std::string cmd_token;
             std::string process_label = pid_str;
@@ -234,7 +264,7 @@ std::vector<Request> TraceReader::load_csv(const std::string& path) const {
                 process_user_ids.emplace(process_label, next_auto_user_id);
             if (inserted) ++next_auto_user_id;
 
-            append_request(it->second, op, ts_seconds, size_bytes);
+            append_request(it->second, op, ts_seconds, size_bytes, lba_bytes);
             return true;
         };
 

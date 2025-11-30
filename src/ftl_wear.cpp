@@ -2,7 +2,6 @@
 #include "ftl_wear.hpp"
 
 #include <algorithm>
-#include <cmath>
 #include <numeric>
 
 namespace ssd {
@@ -119,4 +118,3 @@ std::uint64_t WearLevelFtl::choose_block_for_lba(std::uint64_t lba_bytes, bool i
 }
 
 } // namespace ssd
-

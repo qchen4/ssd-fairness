@@ -139,10 +139,24 @@ CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.s"
 	/usr/local/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hice1/qchen438/Documents/ssd-fairness/src/ssd.cpp -o CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.s
 
+CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o: CMakeFiles/ssd-fairness-core.dir/flags.make
+CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o: /home/hice1/qchen438/Documents/ssd-fairness/src/ftl_wear.cpp
+CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o: CMakeFiles/ssd-fairness-core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hice1/qchen438/Documents/ssd-fairness/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o"
+	/usr/local/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o -MF CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o.d -o CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o -c /home/hice1/qchen438/Documents/ssd-fairness/src/ftl_wear.cpp
+
+CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.i"
+	/usr/local/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hice1/qchen438/Documents/ssd-fairness/src/ftl_wear.cpp > CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.i
+
+CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.s"
+	/usr/local/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hice1/qchen438/Documents/ssd-fairness/src/ftl_wear.cpp -o CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.s
+
 CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o: CMakeFiles/ssd-fairness-core.dir/flags.make
 CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o: /home/hice1/qchen438/Documents/ssd-fairness/src/trace_reader.cpp
 CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o: CMakeFiles/ssd-fairness-core.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hice1/qchen438/Documents/ssd-fairness/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hice1/qchen438/Documents/ssd-fairness/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o"
 	/usr/local/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o -MF CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o.d -o CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o -c /home/hice1/qchen438/Documents/ssd-fairness/src/trace_reader.cpp
 
 CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.i: cmake_force
@@ -156,7 +170,7 @@ CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.s: cmake_force
 CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: CMakeFiles/ssd-fairness-core.dir/flags.make
 CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/ssd-fairness/src/util.cpp
 CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: CMakeFiles/ssd-fairness-core.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hice1/qchen438/Documents/ssd-fairness/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hice1/qchen438/Documents/ssd-fairness/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o"
 	/usr/local/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o -MF CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o.d -o CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o -c /home/hice1/qchen438/Documents/ssd-fairness/src/util.cpp
 
 CMakeFiles/ssd-fairness-core.dir/src/util.cpp.i: cmake_force
@@ -174,6 +188,7 @@ ssd__fairness__core_OBJECTS = \
 "CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.o" \
 "CMakeFiles/ssd-fairness-core.dir/src/simulator.cpp.o" \
 "CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.o" \
+"CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o" \
 "CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o" \
 "CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o"
 
@@ -185,11 +200,12 @@ libssd-fairness-core.a: CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.o
 libssd-fairness-core.a: CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.o
 libssd-fairness-core.a: CMakeFiles/ssd-fairness-core.dir/src/simulator.cpp.o
 libssd-fairness-core.a: CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.o
+libssd-fairness-core.a: CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o
 libssd-fairness-core.a: CMakeFiles/ssd-fairness-core.dir/src/trace_reader.cpp.o
 libssd-fairness-core.a: CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o
 libssd-fairness-core.a: CMakeFiles/ssd-fairness-core.dir/build.make
 libssd-fairness-core.a: CMakeFiles/ssd-fairness-core.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/hice1/qchen438/Documents/ssd-fairness/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX static library libssd-fairness-core.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/hice1/qchen438/Documents/ssd-fairness/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX static library libssd-fairness-core.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/ssd-fairness-core.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ssd-fairness-core.dir/link.txt --verbose=$(VERBOSE)
 

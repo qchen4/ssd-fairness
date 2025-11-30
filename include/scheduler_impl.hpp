@@ -152,7 +152,7 @@ public:
         queues_[r.user_id].push_back(r);
         detail::sched_debug("[drr enqueue] uid=", r.user_id, " sz=", r.size_bytes);
     }
-
+    
     // pick_user adds quantum credit and selects the first user whose request fits.
     std::optional<int> pick_user(double) override {
         if (queues_.empty()) return std::nullopt;

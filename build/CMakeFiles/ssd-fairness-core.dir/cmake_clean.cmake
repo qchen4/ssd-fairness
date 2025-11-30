@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o"
+  "CMakeFiles/ssd-fairness-core.dir/src/ftl_wear.cpp.o.d"
   "CMakeFiles/ssd-fairness-core.dir/src/metrics.cpp.o"
   "CMakeFiles/ssd-fairness-core.dir/src/metrics.cpp.o.d"
   "CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.o"

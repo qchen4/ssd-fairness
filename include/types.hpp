@@ -12,6 +12,7 @@ struct Request {
   OpType op;
   double arrival_ts;    // seconds
   uint32_t size_bytes;  // request size (bytes)
+  std::uint64_t lba{0}; // logical block address (bytes) for wear-leveling/FTL.
   // runtime:
   double start_ts{0.0};
   double finish_ts{0.0};

@@ -7,6 +7,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/ssd-fairness-tests.dir/tests/scheduler_tests.cpp.o.d"
   "CMakeFiles/ssd-fairness-tests.dir/tests/simulator_tests.cpp.o"
   "CMakeFiles/ssd-fairness-tests.dir/tests/simulator_tests.cpp.o.d"
+  "CMakeFiles/ssd-fairness-tests.dir/tests/wear_tests.cpp.o"
+  "CMakeFiles/ssd-fairness-tests.dir/tests/wear_tests.cpp.o.d"
   "ssd-fairness-tests"
   "ssd-fairness-tests.pdb"
 )

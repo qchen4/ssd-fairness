@@ -12,6 +12,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/hice1/qchen438/Documents/ssd-fairness/tests/metrics_tests.cpp" "CMakeFiles/ssd-fairness-tests.dir/tests/metrics_tests.cpp.o" "gcc" "CMakeFiles/ssd-fairness-tests.dir/tests/metrics_tests.cpp.o.d"
   "/home/hice1/qchen438/Documents/ssd-fairness/tests/scheduler_tests.cpp" "CMakeFiles/ssd-fairness-tests.dir/tests/scheduler_tests.cpp.o" "gcc" "CMakeFiles/ssd-fairness-tests.dir/tests/scheduler_tests.cpp.o.d"
   "/home/hice1/qchen438/Documents/ssd-fairness/tests/simulator_tests.cpp" "CMakeFiles/ssd-fairness-tests.dir/tests/simulator_tests.cpp.o" "gcc" "CMakeFiles/ssd-fairness-tests.dir/tests/simulator_tests.cpp.o.d"
+  "/home/hice1/qchen438/Documents/ssd-fairness/tests/wear_tests.cpp" "CMakeFiles/ssd-fairness-tests.dir/tests/wear_tests.cpp.o" "gcc" "CMakeFiles/ssd-fairness-tests.dir/tests/wear_tests.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
