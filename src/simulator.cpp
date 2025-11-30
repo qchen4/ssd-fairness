@@ -1,6 +1,8 @@
+// simulator.cpp: Event-loop driver that dispatches requests via an SSD model.
 #include "simulator.hpp"
 
 #include "events.hpp"
+#include "scheduler_impl.hpp"
 #include "ssd.hpp"
 
 #include <stdexcept>
@@ -25,6 +27,16 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
     scheduler->set_quantum(opts_.scheduler.quantum);
     if (!opts_.scheduler.weights.empty()) {
         scheduler->set_weights(opts_.scheduler.weights);
+    }
+    if (auto* flin = dynamic_cast<FlinScheduler*>(scheduler.get())) {
+        FlinConfig cfg;
+        cfg.window_sec = opts_.scheduler.flin_window_sec;
+        cfg.fairness_alpha = opts_.scheduler.flin_fairness_alpha;
+        cfg.read_alpha = opts_.scheduler.flin_read_alpha;
+        cfg.read_bias_strength = opts_.scheduler.flin_read_bias;
+        cfg.starvation_window = opts_.scheduler.flin_starvation_window;
+        cfg.parallelism_trigger = opts_.scheduler.flin_parallelism_trigger;
+        flin->set_config(cfg);
     }
 
     SSD device(opts_.device_cfg);

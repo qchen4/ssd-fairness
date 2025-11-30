@@ -1,4 +1,4 @@
-user_id,completed,avg_latency_s,total_bytes
-0,60,3.69007e-05,409600
-1,60,3.22625e-05,352256
-2,60,3.35757e-05,352256
+user_id,completed,avg_latency_s,p95_latency_s,p99_latency_s,total_bytes,slowdown_avg,slowdown_ewma
+0,60,3.69007e-05,5.65e-05,6.99583e-05,409600,0,0
+1,60,3.22625e-05,5.67917e-05,5.75e-05,352256,0,0
+2,60,3.35757e-05,5.3625e-05,5.47083e-05,352256,0,0

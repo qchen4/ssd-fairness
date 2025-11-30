@@ -301,6 +301,15 @@ public:
 // read-heavy tenants.
 // Key idea: equalize slowdown = (actual service / fair share) across flows,
 // letting GC/interference be observed implicitly via actual completion bytes.
+struct FlinConfig {
+    double window_sec = 0.1;          // EWMA decay window for service tracking.
+    double fairness_alpha = 0.1;      // EWMA smoothing for slowdown.
+    double read_alpha = 0.1;          // EWMA smoothing for read/write mix.
+    double read_bias_strength = 0.25; // Bias toward read-heavy flows (0..1).
+    double starvation_window = 0.2;   // Idle interval before starvation boost.
+    int parallelism_trigger = 2;      // Outstanding threshold for size-aware insert.
+};
+
 class FlinScheduler : public Scheduler {
     struct FlowStats {
         std::deque<Request> queue;
@@ -310,14 +319,12 @@ class FlinScheduler : public Scheduler {
         double read_fraction = 0.5;  // EWMA of read intensity (1.0 = all reads).
         double last_finish = 0.0;    // Last time a request from this flow finished.
         uint64_t total_served = 0;   // Aggregate bytes served (for introspection).
+        int outstanding = 0;         // Requests in flight for this flow.
+        uint64_t outstanding_bytes = 0;
     };
 
     std::vector<FlowStats> flows_;
-    double window_sec_ = 0.1;         // Time constant for the service EWMA.
-    double fairness_alpha_ = 0.1;     // Smoothing for fairness ratio tracking.
-    double read_alpha_ = 0.1;         // Smoothing for read/write mix.
-    double read_bias_strength_ = 0.15;// Secondary bias toward read-heavy flows.
-    double starvation_window_ = 0.2;  // Ensure a flow that waits >= this gets a boost.
+    FlinConfig cfg_;
 
     static constexpr double kEpsilon = 1e-9; // Guard against divide-by-zero.
 
@@ -325,7 +332,7 @@ class FlinScheduler : public Scheduler {
         double dt = now - f.last_update;
         if (dt <= 0.0) return;
         // Exponential decay approximates a sliding time window of recent service.
-        double factor = std::exp(-dt / window_sec_);
+        double factor = std::exp(-dt / cfg_.window_sec);
         f.served_bytes *= factor;
         f.last_update = now;
     }
@@ -349,7 +356,45 @@ class FlinScheduler : public Scheduler {
         return {total, active};
     }
 
+    // Stage 1: intensity- and parallelism-aware queue insertion.
+    void insert_request(FlowStats& f, const Request& r) {
+        if (f.outstanding >= cfg_.parallelism_trigger && !f.queue.empty()) {
+            // When the flow already drives parallelism, keep smaller requests
+            // near the head to reduce tail latency.
+            auto it = std::find_if(f.queue.begin(), f.queue.end(),
+                                   [&](const Request& existing) {
+                                       return r.size_bytes < existing.size_bytes;
+                                   });
+            f.queue.insert(it, r);
+        } else {
+            f.queue.push_back(r);
+        }
+    }
+
+    double read_starvation_bias(const FlowStats& f, double now) const {
+        double read_bias = 1.0 - cfg_.read_bias_strength * f.read_fraction;
+        read_bias = std::clamp(read_bias, 0.5, 1.0);
+
+        double starvation = 1.0;
+        if (now - f.last_finish > cfg_.starvation_window) starvation = 0.5;
+
+        return read_bias * starvation;
+    }
+
 public:
+    FlinScheduler() = default;
+    explicit FlinScheduler(const FlinConfig& cfg) : cfg_(cfg) {}
+
+    void set_config(const FlinConfig& cfg) {
+        cfg_ = cfg;
+        if (cfg_.window_sec < 1e-6) cfg_.window_sec = 1e-6;
+        cfg_.fairness_alpha = std::clamp(cfg_.fairness_alpha, 0.0, 1.0);
+        cfg_.read_alpha = std::clamp(cfg_.read_alpha, 0.0, 1.0);
+        cfg_.read_bias_strength = std::clamp(cfg_.read_bias_strength, 0.0, 1.0);
+        if (cfg_.starvation_window < 0.0) cfg_.starvation_window = 0.0;
+        if (cfg_.parallelism_trigger < 0) cfg_.parallelism_trigger = 0;
+    }
+
     void set_users(int n) override {
         flows_.assign(std::max(n, 0), {});
     }
@@ -357,7 +402,7 @@ public:
     void enqueue(const Request& r) override {
         if (r.user_id < 0 || r.user_id >= static_cast<int>(flows_.size()))
             return;
-        flows_[r.user_id].queue.push_back(r);
+        insert_request(flows_[r.user_id], r);
         detail::sched_debug("[flin enqueue] uid=", r.user_id, " sz=", r.size_bytes);
     }
 
@@ -382,18 +427,15 @@ public:
             // If the flow has not received service recently, treat it as heavily under-served.
             if (f.served_bytes < kEpsilon && share > 0.0) fairness_ratio = 0.0;
 
-            // Favor read-heavy flows slightly to offset GC / program interference.
-            double read_bias = 1.0 - read_bias_strength_ * f.read_fraction;
-            read_bias = std::clamp(read_bias, 0.7, 1.0);
+            double bias = read_starvation_bias(f, now);
+            double score = fairness_ratio * bias;
 
-            // Starvation guard: flows idle for long receive a multiplicative boost.
-            double starvation = 1.0;
-            if (now - f.last_finish > starvation_window_) starvation = 0.5;
-
-            double score = fairness_ratio * read_bias * starvation;
             if (score < best_score) {
                 best_score = score;
                 best_uid = uid;
+            } else if (std::abs(score - best_score) < 1e-9 && best_uid >= 0) {
+                // Tie-breaker: prefer fewer outstanding requests to reduce HOL blocking.
+                if (f.outstanding < flows_[best_uid].outstanding) best_uid = uid;
             }
         }
 
@@ -409,7 +451,13 @@ public:
         if (q.empty()) return std::nullopt;
         Request r = q.front();
         q.pop_front();
-        detail::sched_debug("[flin pop] uid=", uid, " sz=", r.size_bytes, " remaining=", q.size());
+
+        auto& f = flows_[uid];
+        f.outstanding += 1;
+        f.outstanding_bytes += r.size_bytes;
+
+        detail::sched_debug("[flin pop] uid=", uid, " sz=", r.size_bytes, " remaining=", q.size(),
+                            " outstanding=", f.outstanding);
         return r;
     }
 
@@ -428,6 +476,11 @@ public:
         f.served_bytes += req.size_bytes;
         f.total_served += req.size_bytes;
         f.last_finish = finish_time;
+        if (f.outstanding > 0) --f.outstanding;
+        if (f.outstanding_bytes >= req.size_bytes)
+            f.outstanding_bytes -= req.size_bytes;
+        else
+            f.outstanding_bytes = 0;
 
         total_served += req.size_bytes;
         if (active == 0) active = 1; // At least this flow is active now.
@@ -436,11 +489,11 @@ public:
         double fairness_ratio = share > kEpsilon ? f.served_bytes / share : 1.0;
 
         // Smooth fairness ratio to avoid oscillations in selection.
-        f.fairness_ewma = (1.0 - fairness_alpha_) * f.fairness_ewma +
-                          fairness_alpha_ * fairness_ratio;
+        f.fairness_ewma = (1.0 - cfg_.fairness_alpha) * f.fairness_ewma +
+                          cfg_.fairness_alpha * fairness_ratio;
 
         double is_read = req.op == OpType::READ ? 1.0 : 0.0;
-        f.read_fraction = (1.0 - read_alpha_) * f.read_fraction + read_alpha_ * is_read;
+        f.read_fraction = (1.0 - cfg_.read_alpha) * f.read_fraction + cfg_.read_alpha * is_read;
 
         // Export fairness info so metrics can log slowdown per flow.
         if (metrics) metrics->record_fairness(req.user_id, fairness_ratio, f.fairness_ewma);

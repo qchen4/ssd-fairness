@@ -144,6 +144,14 @@ CMakeFiles/ssd-fairness-core.dir/src/metrics.cpp.o: /home/hice1/qchen438/Documen
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_vector.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_bvector.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/vector.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/algorithm \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_algo.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/algorithmfwd.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_heap.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_tempbuf.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/uniform_int_dist.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_algorithm_defs.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/execution_defs.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/filesystem \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/fs_fwd.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/system_error \
@@ -240,13 +248,12 @@ CMakeFiles/ssd-fairness-core.dir/src/metrics.cpp.o: /home/hice1/qchen438/Documen
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/numeric \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_numeric.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bit \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_numeric_defs.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/execution_defs.h
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_numeric_defs.h
 
 CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.o: /home/hice1/qchen438/Documents/ssd-fairness/src/scheduler.cpp \
   /usr/include/stdc-predef.h \
   /home/hice1/qchen438/Documents/ssd-fairness/include/scheduler_impl.hpp \
-  /home/hice1/qchen438/Documents/ssd-fairness/include/scheduler.hpp \
+  /home/hice1/qchen438/Documents/ssd-fairness/include/metrics.hpp \
   /home/hice1/qchen438/Documents/ssd-fairness/include/types.hpp \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cstdint \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/x86_64-pc-linux-gnu/bits/c++config.h \
@@ -381,6 +388,13 @@ CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.o: /home/hice1/qchen438/Docum
   /usr/include/bits/types/error_t.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/charconv.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/basic_string.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cstddef \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/vector \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_uninitialized.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_vector.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_bvector.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/vector.tcc \
+  /home/hice1/qchen438/Documents/ssd-fairness/include/scheduler.hpp \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/optional \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/exception \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/exception_ptr.h \
@@ -388,11 +402,6 @@ CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.o: /home/hice1/qchen438/Docum
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/typeinfo \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/nested_exception.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/enable_special_members.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/vector \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_uninitialized.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_vector.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_bvector.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/vector.tcc \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/algorithm \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_algo.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/algorithmfwd.h \
@@ -403,6 +412,31 @@ CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.o: /home/hice1/qchen438/Docum
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/execution_defs.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cassert \
   /usr/include/assert.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cmath \
+  /usr/include/math.h \
+  /usr/include/bits/math-vector.h \
+  /usr/include/bits/libm-simd-decl-stubs.h \
+  /usr/include/bits/flt-eval-method.h \
+  /usr/include/bits/fp-logb.h \
+  /usr/include/bits/fp-fast.h \
+  /usr/include/bits/mathcalls-helper-functions.h \
+  /usr/include/bits/mathcalls.h \
+  /usr/include/bits/mathcalls-narrow.h \
+  /usr/include/bits/iscanonical.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/specfun.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/limits \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/gamma.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/special_function_util.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/bessel_function.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/beta_function.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/ell_integral.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/exp_integral.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/hypergeometric.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/legendre_function.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/modified_bessel_func.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/poly_hermite.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/poly_laguerre.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/riemann_zeta.tcc \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/deque \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_deque.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/deque.tcc \
@@ -460,30 +494,8 @@ CMakeFiles/ssd-fairness-core.dir/src/scheduler.cpp.o: /home/hice1/qchen438/Docum
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/ostream.tcc \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/istream \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/istream.tcc \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/limits \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/memory \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_raw_storage_iter.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/align.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bit \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/uses_allocator.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/unique_ptr.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tuple \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/shared_ptr.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/shared_ptr_base.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/allocated_ptr.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/ext/aligned_buffer.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/ext/concurrence.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/shared_ptr_atomic.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/atomic_base.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/atomic_lockfree_defines.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/backward/auto_ptr.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_memory_defs.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/unordered_map \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/hashtable.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/hashtable_policy.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/node_handle.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/unordered_map.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/erase_if.h
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/utility \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_relops.h
 
 CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.o: /home/hice1/qchen438/Documents/ssd-fairness/src/scheduler_factory.cpp \
   /usr/include/stdc-predef.h \
@@ -685,6 +697,8 @@ CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.o: /home/hice1/qchen4
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_memory_defs.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/execution_defs.h \
   /home/hice1/qchen438/Documents/ssd-fairness/include/scheduler_impl.hpp \
+  /home/hice1/qchen438/Documents/ssd-fairness/include/metrics.hpp \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cstddef \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/algorithm \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_algo.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/algorithmfwd.h \
@@ -693,6 +707,31 @@ CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.o: /home/hice1/qchen4
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_algorithm_defs.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cassert \
   /usr/include/assert.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cmath \
+  /usr/include/math.h \
+  /usr/include/bits/math-vector.h \
+  /usr/include/bits/libm-simd-decl-stubs.h \
+  /usr/include/bits/flt-eval-method.h \
+  /usr/include/bits/fp-logb.h \
+  /usr/include/bits/fp-fast.h \
+  /usr/include/bits/mathcalls-helper-functions.h \
+  /usr/include/bits/mathcalls.h \
+  /usr/include/bits/mathcalls-narrow.h \
+  /usr/include/bits/iscanonical.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/specfun.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/limits \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/gamma.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/special_function_util.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/bessel_function.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/beta_function.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/ell_integral.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/exp_integral.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/hypergeometric.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/legendre_function.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/modified_bessel_func.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/poly_hermite.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/poly_laguerre.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/riemann_zeta.tcc \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/deque \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_deque.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/deque.tcc \
@@ -720,13 +759,8 @@ CMakeFiles/ssd-fairness-core.dir/src/scheduler_factory.cpp.o: /home/hice1/qchen4
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/ostream.tcc \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/istream \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/istream.tcc \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/limits \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/unordered_map \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/hashtable.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/hashtable_policy.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/node_handle.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/unordered_map.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/erase_if.h
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/utility \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_relops.h
 
 CMakeFiles/ssd-fairness-core.dir/src/simulator.cpp.o: /home/hice1/qchen438/Documents/ssd-fairness/src/simulator.cpp \
   /usr/include/stdc-predef.h \
@@ -944,6 +978,31 @@ CMakeFiles/ssd-fairness-core.dir/src/simulator.cpp.o: /home/hice1/qchen438/Docum
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_algorithm_defs.h \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cassert \
   /usr/include/assert.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cmath \
+  /usr/include/math.h \
+  /usr/include/bits/math-vector.h \
+  /usr/include/bits/libm-simd-decl-stubs.h \
+  /usr/include/bits/flt-eval-method.h \
+  /usr/include/bits/fp-logb.h \
+  /usr/include/bits/fp-fast.h \
+  /usr/include/bits/mathcalls-helper-functions.h \
+  /usr/include/bits/mathcalls.h \
+  /usr/include/bits/mathcalls-narrow.h \
+  /usr/include/bits/iscanonical.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/specfun.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/limits \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/gamma.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/special_function_util.h \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/bessel_function.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/beta_function.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/ell_integral.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/exp_integral.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/hypergeometric.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/legendre_function.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/modified_bessel_func.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/poly_hermite.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/poly_laguerre.tcc \
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/riemann_zeta.tcc \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/iostream \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/ostream \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/ios \
@@ -968,16 +1027,9 @@ CMakeFiles/ssd-fairness-core.dir/src/simulator.cpp.o: /home/hice1/qchen438/Docum
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/ostream.tcc \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/istream \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/istream.tcc \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/limits \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/unordered_map \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/hashtable.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/hashtable_policy.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/node_handle.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/unordered_map.h \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/erase_if.h \
-  /home/hice1/qchen438/Documents/ssd-fairness/include/ssd.hpp \
   /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/utility \
-  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_relops.h
+  /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_relops.h \
+  /home/hice1/qchen438/Documents/ssd-fairness/include/ssd.hpp
 
 CMakeFiles/ssd-fairness-core.dir/src/ssd.cpp.o: /home/hice1/qchen438/Documents/ssd-fairness/src/ssd.cpp \
   /usr/include/stdc-predef.h \
@@ -1512,11 +1564,13 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /home/hice1/qchen438/Documents/ssd-fairness/src/util.cpp:
 
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/unordered_map.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/hashtable_policy.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/unordered_map:
+
 /home/hice1/qchen438/Documents/ssd-fairness/src/ssd.cpp:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_relops.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/utility:
 
 /home/hice1/qchen438/Documents/ssd-fairness/include/ssd.hpp:
 
@@ -1525,14 +1579,6 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/queue:
 
 /home/hice1/qchen438/Documents/ssd-fairness/include/simulator.hpp:
-
-/home/hice1/qchen438/Documents/ssd-fairness/src/scheduler_factory.cpp:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/unordered_map.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/hashtable_policy.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/unordered_map:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/atomic_lockfree_defines.h:
 
@@ -1544,9 +1590,39 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/memory:
 
+/home/hice1/qchen438/Documents/ssd-fairness/src/scheduler_factory.cpp:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_relops.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/utility:
+
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/iostream:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/deque.tcc:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/riemann_zeta.tcc:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/hypergeometric.tcc:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/exp_integral.tcc:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/ell_integral.tcc:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/beta_function.tcc:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/bessel_function.tcc:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/specfun.h:
+
+/usr/include/bits/iscanonical.h:
+
+/usr/include/bits/mathcalls.h:
+
+/usr/include/bits/mathcalls-helper-functions.h:
+
+/usr/include/bits/libm-simd-decl-stubs.h:
+
+/usr/include/bits/math-vector.h:
 
 /usr/include/bits/types/struct_timespec.h:
 
@@ -1557,6 +1633,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 /usr/include/bits/byteswap.h:
 
 /usr/include/bits/types/timer_t.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/special_function_util.h:
 
 /usr/include/bits/types/__fpos_t.h:
 
@@ -1590,6 +1668,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_algobase.h:
 
+/usr/include/bits/flt-eval-method.h:
+
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/string:
 
 /usr/include/bits/struct_mutex.h:
@@ -1599,6 +1679,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/streambuf:
 
 /usr/include/bits/thread-shared-types.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/legendre_function.tcc:
 
 /usr/include/bits/types/__locale_t.h:
 
@@ -1642,6 +1724,12 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cstdlib:
 
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/deque:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/ext/string_conversions.h:
+
+/usr/include/bits/libc-header-start.h:
+
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_numeric_defs.h:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/predefined_ops.h:
@@ -1663,6 +1751,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 /usr/include/stdc-predef.h:
 
 /usr/include/asm-generic/posix_types.h:
+
+/usr/include/bits/fp-logb.h:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/streambuf.tcc:
 
@@ -1722,6 +1812,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /usr/include/stdint.h:
 
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/modified_bessel_func.tcc:
+
 /usr/include/features-time64.h:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/locale_facets.h:
@@ -1764,6 +1856,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /usr/include/bits/types/struct_tm.h:
 
+/usr/include/bits/mathcalls-narrow.h:
+
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/ext/alloc_traits.h:
 
 /usr/include/bits/locale.h:
@@ -1801,12 +1895,6 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 /usr/include/bits/stdint-intn.h:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/new_allocator.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/ext/string_conversions.h:
-
-/usr/include/bits/libc-header-start.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/deque:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/exception.h:
 
@@ -1884,6 +1972,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/charconv.h:
 
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/poly_laguerre.tcc:
+
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cstddef:
 
 /usr/include/bits/struct_rwlock.h:
@@ -1894,17 +1984,29 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_bvector.h:
 
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_heap.h:
+
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/node_handle.h:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/system_error:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/uses_allocator.h:
 
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_heap.h:
-
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/vector.tcc:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/unique_ptr.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_algo.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/uniform_int_dist.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_algorithm_defs.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/cxxabi_init_exception.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/execution_defs.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/parse_numbers.h:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/fs_fwd.h:
 
@@ -1932,15 +2034,13 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /usr/include/time.h:
 
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/parse_numbers.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/cxxabi_init_exception.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/execution_defs.h:
-
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/locale:
 
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/gamma.tcc:
+
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/ext/atomicity.h:
+
+/usr/include/bits/fp-fast.h:
 
 /usr/include/wctype.h:
 
@@ -1984,6 +2084,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/locale_facets.tcc:
 
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cmath:
+
 /usr/include/bits/cpu-set.h:
 
 /usr/include/bits/setjmp.h:
@@ -2024,6 +2126,12 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/locale_facets_nonio.h:
 
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_deque.h:
+
+/usr/include/bits/types/mbstate_t.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/x86_64-pc-linux-gnu/bits/time_members.h:
+
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/x86_64-pc-linux-gnu/bits/messages_members.h:
 
 /usr/include/bits/endianness.h:
@@ -2035,6 +2143,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 /usr/include/bits/wctype-wchar.h:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/quoted_string.h:
+
+/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/tr1/poly_hermite.tcc:
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/istream:
 
@@ -2068,18 +2178,8 @@ CMakeFiles/ssd-fairness-core.dir/src/util.cpp.o: /home/hice1/qchen438/Documents/
 
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/optional:
 
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_algo.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/uniform_int_dist.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/pstl/glue_algorithm_defs.h:
-
 /storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/cassert:
 
 /usr/include/assert.h:
 
-/usr/include/bits/types/mbstate_t.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/x86_64-pc-linux-gnu/bits/time_members.h:
-
-/storage/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/include/c++/12.3.0/bits/stl_deque.h:
+/usr/include/math.h:

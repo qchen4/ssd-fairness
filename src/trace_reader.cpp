@@ -1,3 +1,4 @@
+// trace_reader.cpp: Loads CSV or blkparse traces into in-memory request lists.
 #include "trace_reader.hpp"
 
 #include <algorithm>
@@ -187,25 +188,26 @@ std::vector<Request> TraceReader::load_csv(const std::string& path) const {
 
             std::string lba_str, plus_token, length_str;
             if (!(ws >> lba_str >> plus_token >> length_str)) {
-                throw std::runtime_error("Line " + std::to_string(current_line) +
-                                         ": incomplete blktrace data for queue event");
+                // Malformed or incomplete queue event; skip this line instead of
+                // aborting the entire trace load.
+                return true;
             }
             if (plus_token != "+") {
-                throw std::runtime_error("Line " + std::to_string(current_line) +
-                                         ": expected '+' before sector count");
+                // Unexpected token before sector count; ignore this event.
+                return true;
             }
 
             uint64_t sectors = 0;
             try {
                 sectors = std::stoull(length_str);
-            } catch (const std::exception& e) {
-                throw std::runtime_error("Line " + std::to_string(current_line) +
-                                         ": invalid sector count: " + e.what());
+            } catch (const std::exception&) {
+                // Invalid sector count; ignore this event.
+                return true;
             }
             uint64_t bytes64 = sectors * static_cast<uint64_t>(kSectorSizeBytes);
             if (bytes64 > std::numeric_limits<uint32_t>::max()) {
-                throw std::runtime_error("Line " + std::to_string(current_line) +
-                                         ": request size exceeds uint32_t");
+                // Oversized request; ignore this event.
+                return true;
             }
             uint32_t size_bytes = static_cast<uint32_t>(bytes64);
 
@@ -238,8 +240,10 @@ std::vector<Request> TraceReader::load_csv(const std::string& path) const {
 
         if (handle_blktrace()) return;
 
-        throw std::runtime_error("Line " + std::to_string(current_line) +
-                                 ": expected CSV or blktrace format");
+        // If we reach here the line is neither valid CSV nor recognizable
+        // blktrace. Treat it as ignorable (e.g., metadata or a partial line)
+        // instead of aborting the entire load.
+        return;
     };
 
     while (std::getline(in, line)) {

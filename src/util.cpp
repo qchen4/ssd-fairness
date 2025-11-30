@@ -1,3 +1,4 @@
+// util.cpp: Utility helpers for trace parsing and formatting.
 #include "util.hpp"
 #include "trace_reader.hpp"
 

@@ -1,3 +1,4 @@
+// metrics.cpp: Implements per-user throughput, latency, and fairness tracking.
 #include "metrics.hpp"
 
 #include <algorithm>
@@ -88,6 +89,12 @@ double Metrics::fairness_avg(int user_id) const {
     return s.fairness_sum / static_cast<double>(s.fairness_samples);
 }
 
+bool Metrics::has_fairness(int user_id) const {
+    if (user_id < 0 || user_id >= static_cast<int>(stats_.size()))
+        return false;
+    return stats_[user_id].fairness_samples > 0;
+}
+
 // fairness_index implements Jain's metric. If slowdown samples are available we
 // use them, otherwise we fall back to throughput fairness based on bytes.
 double Metrics::fairness_index() const {
@@ -153,7 +160,7 @@ bool Metrics::save_csv(const std::string& path) const {
     if (!out.is_open()) return false;
 
     out << "user_id,completed,avg_latency_s,p95_latency_s,p99_latency_s,total_bytes,"
-           "fairness_avg,fairness_ewma\n";
+           "slowdown_avg,slowdown_ewma\n";
     for (size_t i = 0; i < stats_.size(); ++i) {
         out << i << ","
             << stats_[i].completed << ","

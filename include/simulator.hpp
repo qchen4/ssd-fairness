@@ -14,6 +14,13 @@ namespace ssd {
 struct SchedulerSettings {
     double quantum = 4096.0;          // DRR quantum or similar byte credit.
     std::vector<double> weights;      // Optional per-user weights.
+    // FLIN tuning parameters. Unused by other schedulers.
+    double flin_window_sec = 0.1;
+    double flin_fairness_alpha = 0.1;
+    double flin_read_alpha = 0.1;
+    double flin_read_bias = 0.25;
+    double flin_starvation_window = 0.2;
+    int flin_parallelism_trigger = 2;
 };
 
 struct SimulationOptions {

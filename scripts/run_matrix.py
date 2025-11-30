@@ -20,6 +20,8 @@ def parse_stdout(stdout: str) -> Dict[str, float]:
             metrics["throughput_fairness_index"] = float(line.split(":")[1].strip())
         elif line.startswith("Throughput (MB/s):"):
             metrics["throughput_MBps"] = float(line.split(":")[1].strip())
+        elif line.startswith("Average slowdown"):
+            metrics["avg_slowdown"] = float(line.split(":")[1].strip())
         elif line.startswith("Average latency"):
             metrics["avg_latency_s"] = float(line.split(":")[1].strip())
         elif line.startswith("Completed requests:"):
@@ -69,6 +71,11 @@ def main() -> None:
         default="results/matrix/summary.csv",
         help="Path to aggregated summary CSV",
     )
+    parser.add_argument(
+        "--include-blktraces",
+        default=None,
+        help="Optional directory containing raw blktrace/SNIA traces to include alongside CSVs",
+    )
     args = parser.parse_args()
 
     binary = Path(args.binary)
@@ -78,6 +85,13 @@ def main() -> None:
 
     rows: List[Dict] = []
     traces = sorted(trace_dir.glob("*.csv"))
+    if args.include_blktraces:
+        blktrace_dir = Path(args.include_blktraces)
+        if blktrace_dir.exists():
+            traces.extend(sorted(p for p in blktrace_dir.iterdir() if p.is_file()))
+        else:
+            raise SystemExit(f"blktrace directory {blktrace_dir} does not exist")
+    traces = sorted(traces)
     if not traces:
         raise SystemExit(f"No traces found under {trace_dir}")
 
@@ -95,6 +109,7 @@ def main() -> None:
         "throughput_fairness_index",
         "throughput_MBps",
         "avg_latency_s",
+        "avg_slowdown",
         "completed",
         "runtime_s",
         "results_path",

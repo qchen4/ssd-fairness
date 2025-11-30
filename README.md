@@ -97,6 +97,12 @@ make -j$(nproc)
 | `-w, --write-bw MBPS` | Aggregate write bandwidth (default 1200 MB/s). |
 | `-W, --weights CSV` | Comma-separated per-user weights (applied to WFQ/DRR). |
 | `-o, --results PATH` | Output path for the per-user summary CSV (`results/results.csv` default). |
+| `--flin-window-sec SECONDS` | FLIN EWMA window for recent service (default 0.1s). |
+| `--flin-fairness-alpha A` | FLIN smoothing factor for slowdown EWMA (default 0.1). |
+| `--flin-read-alpha A` | FLIN smoothing factor for read/write mix (default 0.1). |
+| `--flin-read-bias B` | Bias toward read-heavy flows (0..1, default 0.25). |
+| `--flin-starvation-window SECONDS` | Idle interval before FLIN boosts a flow (default 0.2s). |
+| `--flin-parallelism-trigger N` | Outstanding threshold that triggers size-aware insertion (default 2). |
 
 Example:
 
@@ -104,6 +110,7 @@ Example:
 ./build/ssd-fairness \
   --trace traces/example.csv \
   --scheduler flin \
+  --flin-read-bias 0.3 \
   --quantum 4096 \
   --channels 16 \
   --weights 1,1,2,4
@@ -143,6 +150,12 @@ Provide the raw trace file (e.g., `traces/ssdtrace-sample`) and the loader will:
 - Treat each `pid:[command]` combination as a distinct process and auto-assign user IDs, mirroring the legacy CSV behavior.
 
 Non-queue blktrace events (`I`, `D`, `C`, etc.) are ignored. This lets you feed SNIA or RocksDB traces captured with `blktrace` straight into the simulator without pre-converting to CSV.
+
+Example:
+
+```
+./build/ssd-fairness --trace traces/ssdtrace-sample --scheduler flin
+```
 
 ---
 
@@ -206,6 +219,7 @@ It also prints to stdout:
 Simulation complete.
 Fairness Index: 0.994
 Throughput Fairness Index: 0.992
+Average slowdown: 1.02
 Throughput (MB/s): 820.4
 Average latency (s): 0.00081
 Results saved to results/results.csv
@@ -224,6 +238,8 @@ where `x_i` is the slowdown-style fairness ratio (`actual_rate / fair_share`) if
 
 Tail latencies (P95/P99) are included in the per-user CSV. If you need the full latency distribution, extend `Metrics::save_csv` or instrument the event loop to emit per-request samples.
 
+Per-user CSV columns now include slowdown averages/EWMAs so you can plot the fairness metric used by the FLIN paper directly.
+
 ---
 
 ## Plotting
@@ -241,8 +257,8 @@ The plotting script uses pandas/matplotlib/seaborn; install them via `pip instal
 ## Testing & Automation
 
 - Build and run the tests: `cmake -S . -B build && cmake --build build && ctest --output-on-failure`. The lightweight harness exercises scheduler ordering, deficit accumulation, trace parsing, and the simulator event loop.
-- Deterministic workload traces live in `test_data/traces`; regenerate them with `python3 scripts/generate_traces.py --output-dir test_data/traces`.
-- Compare schedulers across all test traces with `python3 scripts/run_matrix.py --binary build/ssd-fairness --traces test_data/traces --output-dir results/matrix` (summary written to `results/matrix/summary.csv`).
+- Deterministic workload traces live in `test_data/traces`; regenerate them with `python3 scripts/generate_traces.py --output-dir test_data/traces`. Flags like `--random-access`, `--inject-gc`, and `--blktrace` help emulate interference patterns and produce blktrace-formatted test inputs.
+- Compare schedulers across all test traces with `python3 scripts/run_matrix.py --binary build/ssd-fairness --traces test_data/traces --output-dir results/matrix` (summary written to `results/matrix/summary.csv`). Use `--include-blktraces DIR` to evaluate raw SNIA/blkparse traces alongside CSV traces.
 
 ---
 

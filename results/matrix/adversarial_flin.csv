@@ -1,0 +1,3 @@
+user_id,completed,avg_latency_s,p95_latency_s,p99_latency_s,total_bytes,slowdown_avg,slowdown_ewma
+0,160,2.30823e-05,3.54583e-05,3.95417e-05,655360,1.081,1.57475
+1,40,0.00110009,0.00158238,0.00161871,5242880,1.48131,1.7049

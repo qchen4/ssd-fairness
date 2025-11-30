@@ -10,7 +10,7 @@
 
 namespace ssd {
 
-// Metrics collects per-user throughput, latency, and fairness statistics.
+// Metrics collects per-user throughput, latency, and fairness/slowdown statistics.
 class Metrics {
 public:
     explicit Metrics(int num_users = 0);
@@ -38,6 +38,10 @@ public:
     double fairness_ewma(int user_id) const;
     // fairness_avg returns the average instantaneous fairness ratio for |user_id|.
     double fairness_avg(int user_id) const;
+    // Returns true if slowdown/fairness samples have been recorded.
+    bool has_fairness(int user_id) const;
+    // slowdown_avg is an alias for fairness_avg to mirror FLIN nomenclature.
+    double slowdown_avg(int user_id) const { return fairness_avg(user_id); }
     // users returns the number of tracked users.
     int users() const { return static_cast<int>(stats_.size()); }
 

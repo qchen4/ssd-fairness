@@ -1,3 +1,4 @@
+// ssd.cpp: Simple SSD channel timing model for the simulator.
 #include "ssd.hpp"
 
 #include <algorithm>

@@ -1,10 +1,10 @@
-Start testing: Nov 29 17:12 EST
+Start testing: Nov 29 18:22 EST
 ----------------------------------------------------------
 1/1 Testing: ssd-fairness-tests
 1/1 Test: ssd-fairness-tests
 Command: "/home/hice1/qchen438/Documents/ssd-fairness/build/ssd-fairness-tests"
 Directory: /home/hice1/qchen438/Documents/ssd-fairness/build
-"ssd-fairness-tests" start time: Nov 29 17:12 EST
+"ssd-fairness-tests" start time: Nov 29 18:22 EST
 Output:
 ----------------------------------------------------------
 [PASS] FairnessSkipsIdleUsers
@@ -15,11 +15,11 @@ Output:
 [PASS] TraceReaderSortsAndAssignsUsers
 Ran 6 tests: 6 passed, 0 failed
 <end of output>
-Test time =   0.23 sec
+Test time =   0.21 sec
 ----------------------------------------------------------
 Test Passed.
-"ssd-fairness-tests" end time: Nov 29 17:12 EST
+"ssd-fairness-tests" end time: Nov 29 18:22 EST
 "ssd-fairness-tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Nov 29 17:12 EST
+End testing: Nov 29 18:22 EST
