@@ -56,6 +56,9 @@ public:
 
     const std::vector<std::uint64_t>& erase_counts() const { return erase_counts_; }
 
+    // Debug-only helper to inspect how often GC runs in tests/experiments.
+    std::size_t gc_invocations_debug() const { return gc_invocations_debug_; }
+
     // Global wear statistics helpers.
     double wear_variance() const;
     std::uint64_t wear_min_erase() const;
@@ -120,6 +123,9 @@ private:
     std::vector<BlockState> blocks_;
     std::unordered_map<std::uint64_t, PhysAddr> lba_to_phys_;
     std::size_t pages_per_block_ = 0;
+
+    // Debug-only: counts how many times GC has been invoked.
+    std::size_t gc_invocations_debug_ = 0;
 };
 
 } // namespace ssd

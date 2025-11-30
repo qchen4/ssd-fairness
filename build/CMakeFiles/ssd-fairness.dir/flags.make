@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/hice1/qchen438/Documents/ssd-fairness/include
 
-CXX_FLAGS = -std=gnu++17 -Wall -Wextra -Wpedantic
+CXX_FLAGS = -O3 -DNDEBUG -std=gnu++17 -Wall -Wextra -Wpedantic
 

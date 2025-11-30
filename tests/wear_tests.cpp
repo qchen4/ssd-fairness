@@ -122,3 +122,48 @@ TEST_CASE(WearFtlSegmentRebalanceRunsAndKeepsWearStatsSane) {
     REQUIRE_TRUE(max_v >= min_v);
 }
 
+TEST_CASE(WearFtlTriggersGcAndProducesNonZeroWearVariance) {
+    ssd::WearLevelConfig cfg;
+    cfg.total_blocks = 8;
+    cfg.pages_per_block = 4; // total physical pages = 32
+    cfg.pool_size = 4;
+    cfg.hot_threshold = 0.0; // treat all writes as hot so WL is always active
+    cfg.num_segments = 1;    // disable segment rebalance for this basic GC test
+    cfg.rebalance_interval = 0;
+    cfg.rebalance_fraction = 0.0;
+
+    ssd::WearLevelFtl ftl(cfg);
+
+    const int num_writes = 1000;
+    for (int i = 0; i < num_writes; ++i) {
+        std::uint64_t lba = static_cast<std::uint64_t>(i % 16); // small logical space
+        bool is_hot = false;
+        auto block = ftl.map_write(lba, &is_hot);
+        (void)block;
+        ftl.on_write_completed(lba);
+    }
+
+    const auto& counts = ftl.erase_counts();
+    REQUIRE_TRUE(!counts.empty());
+
+    std::uint64_t min_ec = counts[0];
+    std::uint64_t max_ec = counts[0];
+    for (auto ec : counts) {
+        if (ec < min_ec) min_ec = ec;
+        if (ec > max_ec) max_ec = ec;
+    }
+
+    // At least one erase happened and wear is non-uniform.
+    REQUIRE_TRUE(max_ec > 0);
+    REQUIRE_TRUE(max_ec > min_ec);
+
+    // Metrics should see non-zero wear variance.
+    ssd::Metrics m(1);
+    m.record_wear_snapshot(counts);
+    REQUIRE_TRUE(m.has_wear_stats());
+    REQUIRE_TRUE(m.wear_variance() > 0.0);
+
+    // Optional: confirm that GC actually ran during the test.
+    REQUIRE_TRUE(ftl.gc_invocations_debug() > 0);
+}
+

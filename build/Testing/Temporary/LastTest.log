@@ -1,10 +1,10 @@
-Start testing: Nov 30 04:19 EST
+Start testing: Nov 30 04:44 EST
 ----------------------------------------------------------
 1/1 Testing: ssd-fairness-tests
 1/1 Test: ssd-fairness-tests
 Command: "/home/hice1/qchen438/Documents/ssd-fairness/build/ssd-fairness-tests"
 Directory: /home/hice1/qchen438/Documents/ssd-fairness/build
-"ssd-fairness-tests" start time: Nov 30 04:19 EST
+"ssd-fairness-tests" start time: Nov 30 04:44 EST
 Output:
 ----------------------------------------------------------
 [PASS] FairnessSkipsIdleUsers
@@ -19,11 +19,11 @@ Output:
 [PASS] WearFtlSegmentRebalanceRunsAndKeepsWearStatsSane
 Ran 10 tests: 10 passed, 0 failed
 <end of output>
-Test time =   0.02 sec
+Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"ssd-fairness-tests" end time: Nov 30 04:19 EST
+"ssd-fairness-tests" end time: Nov 30 04:44 EST
 "ssd-fairness-tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Nov 30 04:19 EST
+End testing: Nov 30 04:44 EST

@@ -21,6 +21,7 @@ void WearLevelFtl::reset(std::size_t blocks) {
     init_blocks(blocks);
     init_segments();
     hot_write_counter_ = 0;
+    gc_invocations_debug_ = 0;
 }
 
 void WearLevelFtl::init_blocks(std::size_t blocks) {
@@ -380,7 +381,13 @@ void WearLevelFtl::maybe_gc() {
     for (const auto& bs : blocks_) {
         if (bs.pages_used < pages_per_block_) free_pages += pages_per_block_ - bs.pages_used;
     }
-    if (free_pages <= pages_per_block_) run_gc_once();
+    // Trigger GC when free space drops below a fraction of total capacity so
+    // that GC runs under realistic workloads instead of only when completely full.
+    const std::size_t total_pages = blocks_.size() * pages_per_block_;
+    // Fire GC when free space is at or below 10% of total pages.
+    if (free_pages * 10 <= total_pages) {
+        run_gc_once();
+    }
 }
 
 int WearLevelFtl::choose_gc_victim_block() const {
@@ -416,6 +423,7 @@ void WearLevelFtl::erase_block(std::uint32_t block) {
 }
 
 void WearLevelFtl::run_gc_once() {
+    ++gc_invocations_debug_; // DEBUG: count GC invocations
     if (blocks_.empty()) return;
     int victim = choose_gc_victim_block();
     if (victim < 0) return;
