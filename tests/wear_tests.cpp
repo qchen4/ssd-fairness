@@ -7,57 +7,52 @@
 
 #include <vector>
 
-TEST_CASE(WearFtlAvoidsMostWornBlockForHotWrites) {
+TEST_CASE(WearFtlAllocatesPhysicalPagesAndMapsReads) {
     ssd::WearLevelConfig cfg;
     cfg.total_blocks = 8;
     cfg.pool_size = 8;
-    cfg.hot_threshold = 0.0; // treat every write as hot for this test.
+    cfg.hot_threshold = 0.0;
+    cfg.pages_per_block = 4;
 
     ssd::WearLevelFtl ftl(cfg);
 
-    // Drive a single LBA repeatedly to concentrate wear on one block.
     const std::uint64_t hot_lba = 0;
-    for (int i = 0; i < 10; ++i) {
-        (void)ftl.map_write(hot_lba, nullptr);
-        ftl.on_write_completed(hot_lba);
+    for (int i = 0; i < 32; ++i) {
+        bool is_hot = false;
+        std::uint64_t block = ftl.map_write(hot_lba, &is_hot);
+        REQUIRE_TRUE(block < cfg.total_blocks);
+        REQUIRE_TRUE(is_hot);
     }
 
-    const auto& counts_before = ftl.erase_counts();
-    REQUIRE_TRUE(!counts_before.empty());
-
-    // Identify the most-worn block so far.
-    std::size_t max_idx = 0;
-    for (std::size_t i = 1; i < counts_before.size(); ++i) {
-        if (counts_before[i] > counts_before[max_idx]) {
-            max_idx = i;
-        }
-    }
-
-    // A subsequent hot write for a different LBA should avoid the most-worn block.
-    bool is_hot = false;
-    std::uint64_t new_block = ftl.map_write(4096 /* different LBA */, &is_hot);
-    REQUIRE_TRUE(is_hot); // threshold == 0 => always hot.
-    REQUIRE_TRUE(new_block < counts_before.size());
-    REQUIRE_TRUE(new_block != max_idx);
+    const std::uint64_t other_lba = 123456;
+    auto block_new = ftl.map_write(other_lba, nullptr);
+    REQUIRE_TRUE(block_new < cfg.total_blocks);
+    REQUIRE_EQ(ftl.map_read(other_lba), block_new);
 }
 
-TEST_CASE(WearFtlIncrementsEraseCountsOnWriteCompletion) {
+TEST_CASE(WearFtlGcIncrementsEraseCounts) {
     ssd::WearLevelConfig cfg;
-    cfg.total_blocks = 4;
-    cfg.pool_size = 4;
+    cfg.total_blocks = 2;
+    cfg.pool_size = 2;
+    cfg.hot_threshold = 0.0;
+    cfg.pages_per_block = 2;
 
     ssd::WearLevelFtl ftl(cfg);
 
-    const std::uint64_t lba = 12345;
-    (void)ftl.map_write(lba, nullptr);
-    ftl.on_write_completed(lba);
+    // Repeatedly overwrite the same LBA to force invalid pages and GC.
+    const std::uint64_t lba = 42;
+    for (int i = 0; i < 50; ++i) {
+        (void)ftl.map_write(lba, nullptr);
+    }
 
     const auto& counts = ftl.erase_counts();
     REQUIRE_TRUE(!counts.empty());
 
-    std::uint64_t total = 0;
-    for (auto v : counts) total += v;
-    REQUIRE_EQ(total, 1u);
+    bool saw_wear = false;
+    for (auto v : counts) {
+        if (v > 0) saw_wear = true;
+    }
+    REQUIRE_TRUE(saw_wear);
 }
 
 TEST_CASE(WearSchedulerProducesWearStats) {

@@ -1,2 +1,2 @@
-ssd-fairness-tests 3 0.00777279
+ssd-fairness-tests 6 0.003542
 ---

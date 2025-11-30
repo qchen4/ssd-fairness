@@ -4,6 +4,7 @@
 #include "types.hpp"
 
 #include <cstdint>
+#include <optional>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -21,6 +22,9 @@ struct WearLevelConfig {
     int num_segments = 8;                  // Number of block segments.
     std::size_t rebalance_interval = 1000; // Hot writes between segment rebalances.
     double rebalance_fraction = 0.05;      // Fraction of LBAs in hottest segment to move.
+
+    // Flash geometry.
+    std::size_t pages_per_block = 64;      // Pages per physical block.
 };
 
 
@@ -58,6 +62,23 @@ public:
     std::uint64_t wear_max_erase() const;
 
 private:
+    struct PhysAddr {
+        std::uint32_t block = 0;
+        std::uint16_t page = 0;
+    };
+
+    struct PageEntry {
+        bool valid = false;
+        std::uint64_t lba = 0;
+    };
+
+    struct BlockState {
+        std::uint64_t erase_count = 0;
+        std::uint16_t pages_used = 0;   // allocated pages (valid + invalid)
+        std::uint16_t pages_valid = 0;  // number of valid pages
+        std::vector<PageEntry> pages;
+    };
+
     WearLevelConfig cfg_;
     std::vector<std::uint64_t> erase_counts_;              // Per-block erase counters.
     std::unordered_map<std::uint64_t, double> write_freq_; // Moving avg writes per LBA.
@@ -80,6 +101,25 @@ private:
     void maybe_rebalance_segments();
     void rebalance_once();
     std::uint64_t choose_block_in_segment(int segment, bool prefer_cold) const;
+
+    // Flash physical state and helpers.
+    void init_blocks(std::size_t blocks);
+    PhysAddr allocate_page_for_write(std::uint64_t lba_bytes, bool is_hot);
+    PhysAddr allocate_page_for_gc(std::uint64_t lba_bytes);
+    void invalidate_old_mapping(std::uint64_t lba_bytes);
+    void maybe_gc();
+    void run_gc_once();
+    int choose_gc_victim_block() const;
+    bool has_free_page_in_any_block() const;
+    std::optional<std::uint16_t> find_free_page_in_block(std::uint32_t block) const;
+    std::optional<PhysAddr> place_new_page_in_block(std::uint64_t lba_bytes, std::uint32_t block);
+    std::optional<PhysAddr> place_in_any_block(std::uint64_t lba_bytes);
+    void erase_block(std::uint32_t block);
+    void move_lba_to_block(std::uint64_t lba_bytes, std::uint32_t new_block);
+
+    std::vector<BlockState> blocks_;
+    std::unordered_map<std::uint64_t, PhysAddr> lba_to_phys_;
+    std::size_t pages_per_block_ = 0;
 };
 
 } // namespace ssd
