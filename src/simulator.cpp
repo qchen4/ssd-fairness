@@ -64,6 +64,7 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
             now = queue.top().time;
             auto ev = queue.pop();
             metrics.on_finish(ev.request);
+            scheduler->on_request_finished(ev.request);
             ++completed;
         } else if (next_request < trace.size()) {
             now = trace[next_request].arrival_ts;

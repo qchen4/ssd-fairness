@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <deque>
 #include <iostream>
@@ -248,6 +249,116 @@ public:
     }
 };
 
+// FlinScheduler approximates FLIN (Fairness-aware Latency Interference Normalizer).
+class FlinScheduler : public Scheduler {
+    struct FlowStats {
+        std::deque<Request> queue;
+        double ewma_bytes = 0.0;
+        double read_ewma = 0.5;
+        double last_update = 0.0;
+    };
+
+    std::vector<FlowStats> flows_;
+    std::vector<double> priorities_;
+    double window_s_ = 0.002;                 // seconds
+    double cap_bytes_per_window_ = 512 * 1024.0;
+    double min_throttle_ = 0.15;
+
+    void decay_flow(FlowStats& flow, double now) const {
+        if (window_s_ <= 0.0 || now <= flow.last_update) return;
+        double delta = now - flow.last_update;
+        double factor = std::exp(-delta / window_s_);
+        flow.ewma_bytes *= factor;
+        flow.last_update = now;
+    }
+
+    double priority_for(int uid) const {
+        if (uid >= 0 && uid < static_cast<int>(priorities_.size()) && priorities_[uid] > 0.0)
+            return priorities_[uid];
+        return 1.0;
+    }
+
+public:
+    void set_users(int n) override {
+        flows_.assign(std::max(n, 0), {});
+        priorities_.assign(flows_.size(), 1.0);
+    }
+
+    void set_weights(const std::vector<double>& weights) override {
+        if (flows_.empty()) return;
+        priorities_.assign(flows_.size(), 1.0);
+        for (size_t i = 0; i < priorities_.size() && i < weights.size(); ++i) {
+            priorities_[i] = std::max(weights[i], 1e-6);
+        }
+    }
+
+    void enqueue(const Request& r) override {
+        if (r.user_id < 0 || r.user_id >= static_cast<int>(flows_.size()))
+            return;
+        FlowStats& flow = flows_[r.user_id];
+        decay_flow(flow, r.arrival_ts);
+        flow.ewma_bytes += r.size_bytes;
+        flow.queue.push_back(r);
+    }
+
+    std::optional<int> pick_user(double now) override {
+        if (flows_.empty()) return std::nullopt;
+
+        int best_uid = -1;
+        double best_score = -1.0;
+
+        for (int uid = 0; uid < static_cast<int>(flows_.size()); ++uid) {
+            auto& flow = flows_[uid];
+            if (flow.queue.empty()) continue;
+            decay_flow(flow, now);
+
+            double intensity = cap_bytes_per_window_ > 0.0
+                ? flow.ewma_bytes / cap_bytes_per_window_
+                : 0.0;
+
+            double throttle = 1.0 - std::min(1.0, intensity);
+            throttle = std::clamp(throttle, min_throttle_, 1.0);
+
+            double write_penalty = 1.0 + (1.0 - flow.read_ewma); // more writes => higher penalty
+            double backlog = static_cast<double>(flow.queue.size());
+            double score = priority_for(uid) * throttle * backlog / write_penalty;
+
+            if (score > best_score) {
+                best_score = score;
+                best_uid = uid;
+            }
+        }
+
+        if (best_uid < 0) return std::nullopt;
+        return best_uid;
+    }
+
+    std::optional<Request> pop(int uid) override {
+        if (uid < 0 || uid >= static_cast<int>(flows_.size()) || flows_[uid].queue.empty())
+            return std::nullopt;
+        Request req = flows_[uid].queue.front();
+        flows_[uid].queue.pop_front();
+        return req;
+    }
+
+    bool empty() const override {
+        for (const auto& flow : flows_)
+            if (!flow.queue.empty()) return false;
+        return true;
+    }
+
+    void on_request_finished(const Request& req) override {
+        if (req.user_id < 0 || req.user_id >= static_cast<int>(flows_.size()))
+            return;
+        FlowStats& flow = flows_[req.user_id];
+        decay_flow(flow, req.finish_ts);
+        const double alpha = 0.2;
+        double sample = (req.op == OpType::READ) ? 1.0 : 0.0;
+        flow.read_ewma = (1.0 - alpha) * flow.read_ewma + alpha * sample;
+        flow.ewma_bytes = std::max(0.0, flow.ewma_bytes - static_cast<double>(req.size_bytes));
+    }
+};
+
 // StartGapScheduler rotates logical-to-physical user mapping to simulate SGFS.
 class StartGapScheduler : public Scheduler {
     std::unique_ptr<Scheduler> base_;
@@ -314,6 +425,10 @@ public:
 
     bool empty() const override {
         return base_->empty();
+    }
+
+    void on_request_finished(const Request& req) override {
+        base_->on_request_finished(req);
     }
 
     void set_start_gap(int rotate_every, int gap) {

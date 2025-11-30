@@ -32,6 +32,9 @@ public:
     virtual std::optional<int> pick_user(double virtual_time) = 0;
     virtual std::optional<Request> pop(int uid) = 0;
     virtual bool empty() const = 0;
+
+    // Optional callback invoked when a request finishes.
+    virtual void on_request_finished(const Request&) {}
 };
 
 } // namespace ssd

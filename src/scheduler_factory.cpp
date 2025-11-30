@@ -14,10 +14,13 @@ std::unique_ptr<Scheduler> make_scheduler(const std::string& policy) {
     if (policy == "qfq" || policy == "wfq") {
         return std::make_unique<WeightedFairScheduler>();
     }
+    if (policy == "flin") {
+        return std::make_unique<FlinScheduler>();
+    }
     if (policy == "sgfs") {
         auto base = std::make_unique<WeightedFairScheduler>();
         return std::make_unique<StartGapScheduler>(std::move(base));
     }
     return nullptr;
-    }
+}
 } // namespace ssd
