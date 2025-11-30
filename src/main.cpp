@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
     opts.scheduler = sched_settings;
     opts.results_path = results_path;
     opts.write_results = true;
+    opts.user_override = override_users;
 
     auto scheduler = ssd::make_scheduler(policy_str);
     if (!scheduler) {
