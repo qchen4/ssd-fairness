@@ -62,6 +62,9 @@ int main(int argc, char** argv) {
     int wear_num_segments = 8;
     std::size_t wear_rebalance_interval = 1000;
     double wear_rebalance_fraction = 0.05;
+    bool wear_enable_min_cap = false;
+    std::uint64_t wear_min_cap_delta = 8;
+    int wear_min_cap_pool_size = 32;
 
     static option longopts[] = {
         {"trace", required_argument, 0, 't'},
@@ -86,6 +89,9 @@ int main(int argc, char** argv) {
         {"wear-num-segments", required_argument, 0, 0},
         {"wear-rebalance-interval", required_argument, 0, 0},
         {"wear-rebalance-fraction", required_argument, 0, 0},
+        {"wear-enable-min-cap", no_argument, 0, 0},
+        {"wear-min-cap-delta", required_argument, 0, 0},
+        {"wear-min-cap-pool-size", required_argument, 0, 0},
         {0,0,0,0}
     };
 
@@ -132,6 +138,12 @@ int main(int argc, char** argv) {
         } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-rebalance-fraction") {
             wear_rebalance_fraction = atof(optarg);
             if (wear_rebalance_fraction < 0.0) wear_rebalance_fraction = 0.0;
+        } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-enable-min-cap") {
+            wear_enable_min_cap = true;
+        } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-min-cap-delta") {
+            wear_min_cap_delta = static_cast<std::uint64_t>(std::strtoull(optarg, nullptr, 10));
+        } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-min-cap-pool-size") {
+            wear_min_cap_pool_size = std::max(1, atoi(optarg));
         } else {
             print_usage();
             return 1;
@@ -173,6 +185,9 @@ int main(int argc, char** argv) {
     sched_settings.wear_num_segments = wear_num_segments;
     sched_settings.wear_rebalance_interval = wear_rebalance_interval;
     sched_settings.wear_rebalance_fraction = wear_rebalance_fraction;
+    sched_settings.wear_enable_min_cap = wear_enable_min_cap;
+    sched_settings.wear_min_cap_delta = wear_min_cap_delta;
+    sched_settings.wear_min_cap_pool_size = wear_min_cap_pool_size;
 
     ssd::SimulationOptions opts;
     opts.device_cfg = sim_cfg;

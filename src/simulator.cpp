@@ -50,6 +50,9 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
         wcfg.rebalance_fraction = opts_.scheduler.wear_rebalance_fraction;
         if (wcfg.rebalance_fraction < 0.0)
             wcfg.rebalance_fraction = 0.0;
+        wcfg.enable_min_cap_wl = opts_.scheduler.wear_enable_min_cap;
+        wcfg.hot_min_cap_delta = opts_.scheduler.wear_min_cap_delta;
+        wcfg.hot_min_cap_pool_size = opts_.scheduler.wear_min_cap_pool_size;
         int channels = opts_.device_cfg.num_channels > 0 ? opts_.device_cfg.num_channels : 1;
         wcfg.total_blocks = static_cast<std::size_t>(channels) * 1024;
         wear->set_wear_config(wcfg, opts_.device_cfg.num_channels);
@@ -112,6 +115,10 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
         } else {
             break;
         }
+    }
+
+    if (!device.wear_counts().empty()) {
+        metrics.record_wear_snapshot(device.wear_counts());
     }
 
     if (opts_.write_results && !opts_.results_path.empty()) {

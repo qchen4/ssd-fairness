@@ -34,8 +34,13 @@ DEFAULT_WORKLOADS = [
 ]
 
 DEFAULT_WL_POLICIES = [
-    {"name": "WL0", "num_segments": 1, "rebalance_interval": 0, "rebalance_fraction": 0.0},
-    {"name": "WL1", "num_segments": 8, "rebalance_interval": 1000, "rebalance_fraction": 0.05},
+    # WL0: dynamic WL only (median/pool), no segment rebalance and no min-cap policy.
+    {"name": "WL0", "num_segments": 1, "rebalance_interval": 0, "rebalance_fraction": 0.0,
+     "enable_min_cap_wl": False},
+    # WL1 (WL2 in the design): enable the global min-cap policy on top of the
+    # existing segment-based rebalancing to aggressively cap wear of hot writes.
+    {"name": "WL1", "num_segments": 8, "rebalance_interval": 1000, "rebalance_fraction": 0.05,
+     "enable_min_cap_wl": True},
 ]
 
 
@@ -145,6 +150,12 @@ def run_simulation(args: argparse.Namespace, trace_path: Path, results_path: Pat
     ]
     if args.wear_read_balance:
         sim_cmd.append("--wear-read-balance")
+    if policy.get("enable_min_cap_wl"):
+        sim_cmd.append("--wear-enable-min-cap")
+        sim_cmd += [
+            "--wear-min-cap-delta", str(args.wear_min_cap_delta),
+            "--wear-min-cap-pool-size", str(args.wear_min_cap_pool_size),
+        ]
 
     proc = subprocess.run(sim_cmd, capture_output=True, text=True)
     if proc.returncode != 0:
@@ -208,6 +219,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wear-read-balance", action="store_true", help="Enable wear read balance flag")
     parser.add_argument("--channels", type=int, default=8, help="Number of SSD channels for the simulator")
     parser.add_argument("--users", type=int, default=4, help="Number of users to pass to simulator")
+    parser.add_argument("--wear-min-cap-delta", type=int, default=8,
+                        help="Allowed delta from global min erase for WL2 hot writes")
+    parser.add_argument("--wear-min-cap-pool-size", type=int, default=32,
+                        help="Candidate pool size for WL2 hot writes")
     parser.add_argument("--seed", type=int, default=12345, help="Base PRNG seed for trace generation")
     return parser.parse_args()
 

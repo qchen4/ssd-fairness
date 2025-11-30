@@ -25,6 +25,11 @@ struct WearLevelConfig {
 
     // Flash geometry.
     std::size_t pages_per_block = 64;      // Pages per physical block.
+
+    // WL2: global min-cap policy parameters.
+    bool enable_min_cap_wl = false;        // When true, use WL2 instead of WL0 logic.
+    std::uint64_t hot_min_cap_delta = 8;   // Allowed offset from global min erase for hot writes.
+    int hot_min_cap_pool_size = 32;        // How many candidates to sample for hot writes.
 };
 
 
@@ -91,6 +96,8 @@ private:
 
     // Existing per-write dynamic WL.
     std::uint64_t choose_block_for_lba(std::uint64_t lba_bytes, bool is_hot) const;
+    std::uint64_t choose_block_original(std::uint64_t lba_bytes, bool is_hot) const;
+    std::uint64_t choose_block_min_cap(std::uint64_t lba_bytes, bool is_hot) const;
 
     // New: segment-based Min–Max-style rebalancing state.
     std::vector<int> block_segment_;                       // block -> segment index

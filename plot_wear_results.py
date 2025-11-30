@@ -25,15 +25,24 @@ def load_summary(path: Path) -> List[Dict[str, str]]:
 
 
 def compute_imbalance(rows: List[Dict[str, str]], workload: str, policy: str) -> float:
+    """Compute wear imbalance (max - min erases) for a workload/policy pair.
+
+    There may be multiple summary rows per (workload, policy) combination if
+    experiments are re-run and appended. We take the maximum observed
+    imbalance across all matching rows so that later runs with non-zero wear
+    are reflected in the plot instead of being masked by earlier zero-wear
+    entries.
+    """
+    imbalances: List[float] = []
     for row in rows:
-        if row["workload_name"] == workload and row["wl_policy"] == policy:
+        if row.get("workload_name") == workload and row.get("wl_policy") == policy:
             try:
-                wear_max = float(row["wear_max_erase"])
-                wear_min = float(row["wear_min_erase"])
-                return wear_max - wear_min
+                wear_max = float(row.get("wear_max_erase", "0") or 0)
+                wear_min = float(row.get("wear_min_erase", "0") or 0)
+                imbalances.append(wear_max - wear_min)
             except (TypeError, ValueError):
-                return 0.0
-    return 0.0
+                continue
+    return max(imbalances) if imbalances else 0.0
 
 
 def plot_imbalance(rows: List[Dict[str, str]], output_path: Path) -> None:

@@ -6,6 +6,7 @@
 #include "types.hpp"
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,6 +31,11 @@ struct SchedulerSettings {
     int wear_num_segments = 8;                           // Min–Max segments.
     std::size_t wear_rebalance_interval = 1000;          // Hot writes between rebalances.
     double wear_rebalance_fraction = 0.05;               // Fraction of LBAs moved per rebalance.
+
+    // WL2: global min-cap wear-leveling policy parameters.
+    bool wear_enable_min_cap = false;        // Enable WL2 when true.
+    std::uint64_t wear_min_cap_delta = 8;    // Allowed delta from global min erase for hot writes.
+    int wear_min_cap_pool_size = 32;         // Number of candidate blocks to sample for WL2.
 };
 
 struct SimulationOptions {

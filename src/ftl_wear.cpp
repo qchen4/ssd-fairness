@@ -115,6 +115,13 @@ std::uint64_t WearLevelFtl::wear_max_erase() const {
 }
 
 std::uint64_t WearLevelFtl::choose_block_for_lba(std::uint64_t lba_bytes, bool is_hot) const {
+    if (cfg_.enable_min_cap_wl) {
+        return choose_block_min_cap(lba_bytes, is_hot);
+    }
+    return choose_block_original(lba_bytes, is_hot);
+}
+
+std::uint64_t WearLevelFtl::choose_block_original(std::uint64_t lba_bytes, bool is_hot) const {
     if (erase_counts_.empty()) return 0;
     const std::size_t n = erase_counts_.size();
 
@@ -152,6 +159,48 @@ std::uint64_t WearLevelFtl::choose_block_for_lba(std::uint64_t lba_bytes, bool i
     return static_cast<std::uint64_t>(
         std::distance(erase_counts_.begin(),
                       std::max_element(erase_counts_.begin(), erase_counts_.end())));
+}
+
+std::uint64_t WearLevelFtl::choose_block_min_cap(std::uint64_t lba_bytes, bool is_hot) const {
+    (void)lba_bytes; // unused for now except in potential future locality tweaks.
+    if (erase_counts_.empty()) return 0;
+    const std::size_t n = erase_counts_.size();
+
+    // Compute global minimum wear.
+    auto min_it = std::min_element(erase_counts_.begin(), erase_counts_.end());
+    std::uint64_t e_min = static_cast<std::uint64_t>(*min_it);
+
+    if (!is_hot) {
+        // For cold writes, fall back to original WL0 behavior for now.
+        return choose_block_original(lba_bytes, is_hot);
+    }
+
+    // For hot writes: enforce min-cap policy.
+    const std::uint64_t delta = cfg_.hot_min_cap_delta;
+    const std::uint64_t cap = e_min + delta;
+
+    // Gather candidate blocks with wear <= cap, up to hot_min_cap_pool_size.
+    std::vector<std::size_t> candidates;
+    candidates.reserve(static_cast<std::size_t>(std::max(cfg_.hot_min_cap_pool_size, 0)));
+
+    for (std::size_t b = 0; b < n; ++b) {
+        if (erase_counts_[b] <= cap) {
+            candidates.push_back(b);
+            if (static_cast<int>(candidates.size()) >= cfg_.hot_min_cap_pool_size &&
+                cfg_.hot_min_cap_pool_size > 0) {
+                break; // limit pool size
+            }
+        }
+    }
+
+    if (!candidates.empty()) {
+        // Simple deterministic choice for now: pick based on LBA for locality.
+        std::size_t idx = static_cast<std::size_t>(lba_bytes % candidates.size());
+        return static_cast<std::uint64_t>(candidates[idx]);
+    }
+
+    // If no block is under the cap (extreme case), choose the global minimum.
+    return static_cast<std::uint64_t>(std::distance(erase_counts_.begin(), min_it));
 }
 
 void WearLevelFtl::register_lba_in_segment(std::uint64_t lba, std::uint64_t block) {
