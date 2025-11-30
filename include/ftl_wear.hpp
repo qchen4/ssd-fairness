@@ -12,11 +12,17 @@ namespace ssd {
 
 // WearLevelConfig configures the lightweight FTL wear-leveling model.
 struct WearLevelConfig {
-    double hot_threshold = 4.0;  // Moving-average threshold for hot writes.
-    int pool_size = 16;          // Candidate blocks to examine per write.
-    bool balance_reads = false;  // Rotate reads across channels when enabled.
-    std::size_t total_blocks = 1024; // Total number of physical blocks.
+    double hot_threshold = 4.0;         // Moving-average threshold for hot writes.
+    int pool_size = 16;                 // Candidate blocks to examine per write.
+    bool balance_reads = false;         // Rotate reads across channels when enabled.
+    std::size_t total_blocks = 1024;    // Total number of physical blocks.
+
+    // Min–Max-style, segment-based rebalancing parameters.
+    int num_segments = 8;                  // Number of block segments.
+    std::size_t rebalance_interval = 1000; // Hot writes between segment rebalances.
+    double rebalance_fraction = 0.05;      // Fraction of LBAs in hottest segment to move.
 };
+
 
 // WearLevelFtl tracks per-block erase counts and a simple hot/cold
 // classification based on per-LBA write frequency. It does not model
@@ -59,7 +65,21 @@ private:
 
     static constexpr double kFreqDecay = 0.9; // Exponential decay for write_freq_.
 
+    // Existing per-write dynamic WL.
     std::uint64_t choose_block_for_lba(std::uint64_t lba_bytes, bool is_hot) const;
+
+    // New: segment-based Min–Max-style rebalancing state.
+    std::vector<int> block_segment_;                       // block -> segment index
+    std::vector<std::vector<std::uint64_t>> segment_lbas_; // segment -> LBAs mapped into that segment
+    std::uint64_t hot_write_counter_ = 0;                  // hot writes since last segment rebalance
+
+    // New helpers.
+    void init_segments();
+    void register_lba_in_segment(std::uint64_t lba, std::uint64_t block);
+    void unregister_lba_in_segment(std::uint64_t lba, std::uint64_t block);
+    void maybe_rebalance_segments();
+    void rebalance_once();
+    std::uint64_t choose_block_in_segment(int segment, bool prefer_cold) const;
 };
 
 } // namespace ssd

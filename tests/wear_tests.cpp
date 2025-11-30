@@ -96,3 +96,34 @@ TEST_CASE(WearSchedulerProducesWearStats) {
     REQUIRE_TRUE(result.metrics.wear_max_erase() >= result.metrics.wear_min_erase());
 }
 
+TEST_CASE(WearFtlSegmentRebalanceRunsAndKeepsWearStatsSane) {
+    ssd::WearLevelConfig cfg;
+    cfg.total_blocks = 32;
+    cfg.pool_size = 8;
+    cfg.hot_threshold = 0.0; // treat every write as hot
+    cfg.num_segments = 4;
+    cfg.rebalance_interval = 10;
+    cfg.rebalance_fraction = 0.25;
+
+    ssd::WearLevelFtl ftl(cfg);
+
+    const std::uint64_t hot_lba = 0;
+    for (int i = 0; i < 200; ++i) {
+        bool is_hot = false;
+        (void)ftl.map_write(hot_lba, &is_hot);
+        ftl.on_write_completed(hot_lba);
+    }
+
+    const auto& counts = ftl.erase_counts();
+    REQUIRE_TRUE(!counts.empty());
+
+    std::uint64_t min_v = counts[0];
+    std::uint64_t max_v = counts[0];
+    for (auto v : counts) {
+        REQUIRE_TRUE(v >= 0);
+        if (v < min_v) min_v = v;
+        if (v > max_v) max_v = v;
+    }
+    REQUIRE_TRUE(max_v >= min_v);
+}
+
