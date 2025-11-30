@@ -5,6 +5,7 @@
 #include "scheduler.hpp"
 #include "types.hpp"
 
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>
@@ -26,6 +27,9 @@ struct SchedulerSettings {
     double wear_hot_threshold = 4.0; // Hot/cold write classification threshold.
     int wear_pool_size = 16;         // Candidate blocks to examine per write.
     bool wear_read_balance = false;  // Enable read-balancing across channels.
+    int wear_num_segments = 8;                           // Min–Max segments.
+    std::size_t wear_rebalance_interval = 1000;          // Hot writes between rebalances.
+    double wear_rebalance_fraction = 0.05;               // Fraction of LBAs moved per rebalance.
 };
 
 struct SimulationOptions {

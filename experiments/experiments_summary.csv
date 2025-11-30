@@ -1,0 +1,9 @@
+workload_name,workload_type,wl_policy,num_segments,rebalance_interval,rebalance_fraction,trace_path,results_path,wear_min_erase,wear_max_erase,wear_variance,fairness_index,throughput_fairness_index,average_slowdown,throughput_MBps,average_latency_s,completed_requests,runtime_s
+U,uniform,WL0,1,0,0.0,experiments/traces/trace_U_seed12345.csv,experiments/results/results_U_WL0.csv,0.0,5000.0,3051.39,0.994744,0.999854,1.01596,7.7892,2.63426e-05,5000.0,2.50748
+U,uniform,WL1,8,1000,0.05,experiments/traces/trace_U_seed12345.csv,experiments/results/results_U_WL1.csv,0.0,5000.0,3051.39,0.994744,0.999854,1.01596,7.7892,2.63426e-05,5000.0,2.50748
+Z1.0,zipf,WL0,1,0,0.0,experiments/traces/trace_Z1.0_seed12346.csv,experiments/results/results_Z1.0_WL0.csv,0.0,113.0,43.2974,0.997842,0.999924,1.01562,7.74081,2.64148e-05,5000.0,2.52315
+Z1.0,zipf,WL1,8,1000,0.05,experiments/traces/trace_Z1.0_seed12346.csv,experiments/results/results_Z1.0_WL1.csv,0.0,113.0,43.2974,0.997842,0.999924,1.01562,7.74081,2.64148e-05,5000.0,2.52315
+H,hotset,WL0,1,0,0.0,experiments/traces/trace_H_seed12347.csv,experiments/results/results_H_WL0.csv,0.0,1325.0,273.014,0.996969,0.999616,1.01448,7.96116,2.64655e-05,5000.0,2.45332
+H,hotset,WL1,8,1000,0.05,experiments/traces/trace_H_seed12347.csv,experiments/results/results_H_WL1.csv,0.0,1325.0,273.014,0.996969,0.999616,1.01448,7.96116,2.64655e-05,5000.0,2.45332
+A1,singlehot,WL0,1,0,0.0,experiments/traces/trace_A1_seed12348.csv,experiments/results/results_A1_WL0.csv,0.0,4.0,0.459258,0.994696,0.999638,1.01579,7.88436,2.64211e-05,5000.0,2.47721
+A1,singlehot,WL1,8,1000,0.05,experiments/traces/trace_A1_seed12348.csv,experiments/results/results_A1_WL1.csv,0.0,4.0,0.459258,0.994696,0.999638,1.01579,7.88436,2.64211e-05,5000.0,2.47721

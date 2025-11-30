@@ -120,7 +120,7 @@ TEST_CASE(WearFtlSegmentRebalanceRunsAndKeepsWearStatsSane) {
     std::uint64_t min_v = counts[0];
     std::uint64_t max_v = counts[0];
     for (auto v : counts) {
-        REQUIRE_TRUE(v >= 0);
+        REQUIRE_TRUE(static_cast<double>(v) >= 0.0);
         if (v < min_v) min_v = v;
         if (v > max_v) max_v = v;
     }

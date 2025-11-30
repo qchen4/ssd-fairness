@@ -5,6 +5,7 @@
 #include "scheduler_impl.hpp"
 #include "ssd.hpp"
 
+#include <algorithm>
 #include <stdexcept>
 #include <utility>
 
@@ -44,6 +45,11 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
         wcfg.hot_threshold = opts_.scheduler.wear_hot_threshold;
         wcfg.pool_size = opts_.scheduler.wear_pool_size;
         wcfg.balance_reads = opts_.scheduler.wear_read_balance;
+        wcfg.num_segments = std::max(1, opts_.scheduler.wear_num_segments);
+        wcfg.rebalance_interval = opts_.scheduler.wear_rebalance_interval;
+        wcfg.rebalance_fraction = opts_.scheduler.wear_rebalance_fraction;
+        if (wcfg.rebalance_fraction < 0.0)
+            wcfg.rebalance_fraction = 0.0;
         int channels = opts_.device_cfg.num_channels > 0 ? opts_.device_cfg.num_channels : 1;
         wcfg.total_blocks = static_cast<std::size_t>(channels) * 1024;
         wear->set_wear_config(wcfg, opts_.device_cfg.num_channels);

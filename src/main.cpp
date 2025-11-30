@@ -5,6 +5,7 @@
 #include "simulator.hpp"
 #include "trace_reader.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <getopt.h>
 #include <iostream>
@@ -34,6 +35,9 @@ int main(int argc, char** argv) {
                   << "      --wear-hot-threshold X     Threshold for hot vs cold writes\n"
                   << "      --wear-pool-size N         Candidate blocks examined per write\n"
                   << "      --wear-read-balance        Enable read-balancing across channels\n"
+                  << "      --wear-num-segments N      Number of Min-Max segments (wear scheduler)\n"
+                  << "      --wear-rebalance-interval N  Hot writes between segment rebalances\n"
+                  << "      --wear-rebalance-fraction F Fraction of LBAs moved per rebalance\n"
                   << "Example: ./ssd-fairness --trace traces/ssdtrace-sample --scheduler flin\n";
     };
 
@@ -55,6 +59,9 @@ int main(int argc, char** argv) {
     double wear_hot_threshold = 4.0;
     int wear_pool_size = 16;
     bool wear_read_balance = false;
+    int wear_num_segments = 8;
+    std::size_t wear_rebalance_interval = 1000;
+    double wear_rebalance_fraction = 0.05;
 
     static option longopts[] = {
         {"trace", required_argument, 0, 't'},
@@ -76,6 +83,9 @@ int main(int argc, char** argv) {
         {"wear-hot-threshold", required_argument, 0, 0},
         {"wear-pool-size", required_argument, 0, 0},
         {"wear-read-balance", no_argument, 0, 0},
+        {"wear-num-segments", required_argument, 0, 0},
+        {"wear-rebalance-interval", required_argument, 0, 0},
+        {"wear-rebalance-fraction", required_argument, 0, 0},
         {0,0,0,0}
     };
 
@@ -113,6 +123,15 @@ int main(int argc, char** argv) {
             wear_pool_size = atoi(optarg);
         } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-read-balance") {
             wear_read_balance = true;
+        } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-num-segments") {
+            wear_num_segments = std::max(1, atoi(optarg));
+        } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-rebalance-interval") {
+            long long parsed = atoll(optarg);
+            if (parsed < 0) parsed = 0;
+            wear_rebalance_interval = static_cast<std::size_t>(parsed);
+        } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-rebalance-fraction") {
+            wear_rebalance_fraction = atof(optarg);
+            if (wear_rebalance_fraction < 0.0) wear_rebalance_fraction = 0.0;
         } else {
             print_usage();
             return 1;
@@ -151,6 +170,9 @@ int main(int argc, char** argv) {
     sched_settings.wear_hot_threshold = wear_hot_threshold;
     sched_settings.wear_pool_size = wear_pool_size;
     sched_settings.wear_read_balance = wear_read_balance;
+    sched_settings.wear_num_segments = wear_num_segments;
+    sched_settings.wear_rebalance_interval = wear_rebalance_interval;
+    sched_settings.wear_rebalance_fraction = wear_rebalance_fraction;
 
     ssd::SimulationOptions opts;
     opts.device_cfg = sim_cfg;
