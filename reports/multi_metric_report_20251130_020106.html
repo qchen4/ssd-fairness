@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>多指标公平性评估报告</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family: 'Segoe UI', Arial; max-width: 1400px; margin: 0 auto; padding: 20px; 
+       background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #eee; min-height: 100vh; }
+h1 { text-align: center; color: #00d9ff; text-shadow: 0 0 20px rgba(0,217,255,0.5); }
+.subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+.metric-card { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; text-align: center;
+               border: 1px solid rgba(255,255,255,0.1); }
+.metric-card h3 { margin: 0 0 10px; font-size: 0.9em; color: #aaa; }
+.metric-card .value { font-size: 2em; font-weight: bold; }
+.rr { color: #ff6b6b; }
+.drr { color: #4ecdc4; }
+.qfq { color: #ffe66d; }
+.flin { color: #95e1d3; }
+.chart-container { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; margin: 20px 0; }
+.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+th, td { padding: 10px; border: 1px solid #333; text-align: center; }
+th { background: rgba(0,217,255,0.2); color: #00d9ff; }
+.best { background: rgba(0,255,136,0.2); font-weight: bold; }
+</style></head><body>
+<h1>📊 多指标公平性评估报告</h1>
+<p class="subtitle">每个算法使用其最适合的指标进行评估 | 2025-11-30 02:01</p>
+
+<h2>🎯 评估指标说明</h2>
+<div class="metrics-grid">
+    <div class="metric-card">
+        <h3>REQUEST FAIRNESS</h3>
+        <div class="value rr">RR</div>
+        <p>Jain(requests/user)<br>请求数公平</p>
+    </div>
+    <div class="metric-card">
+        <h3>BYTE FAIRNESS</h3>
+        <div class="value drr">DRR</div>
+        <p>Jain(bytes/user)<br>字节数公平</p>
+    </div>
+    <div class="metric-card">
+        <h3>LATENCY FAIRNESS</h3>
+        <div class="value qfq">QFQ</div>
+        <p>Jain(1/latency)<br>延迟公平</p>
+    </div>
+    <div class="metric-card">
+        <h3>SLOWDOWN FAIRNESS</h3>
+        <div class="value flin">FLIN</div>
+        <p>min(S)/max(S)<br>减速公平</p>
+    </div>
+</div>
+
+<div class="chart-row">
+<div class="chart-container">
+    <h2>🏆 综合排名胜出</h2>
+    <canvas id="winsChart"></canvas>
+</div>
+<div class="chart-container">
+    <h2>🏠 主场指标胜出</h2>
+    <canvas id="homeChart"></canvas>
+</div>
+</div>
+
+<h2>📋 详细结果</h2>
+<table>
+<tr>
+    <th>场景</th>
+    <th>Request<br>(RR主场)</th>
+    <th>Byte<br>(DRR主场)</th>
+    <th>Latency<br>(QFQ主场)</th>
+    <th>Slowdown<br>(FLIN主场)</th>
+    <th>综合胜者</th>
+</tr>
+<tr>
+    <td>s01_uniform</td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">0.992</span> | <span class="best drr">0.992</span> | <span class=" qfq">0.988</span> | <span class="best flin">0.992</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>s02_size_8x</td>
+    <td><span class="best rr">0.735</span> | <span class="best drr">0.735</span> | <span class="best qfq">0.735</span> | <span class="best flin">0.735</span></td>
+    <td><span class="best rr">0.900</span> | <span class="best drr">0.900</span> | <span class="best qfq">0.900</span> | <span class="best flin">0.900</span></td>
+    <td><span class=" rr">0.514</span> | <span class=" drr">0.862</span> | <span class=" qfq">0.498</span> | <span class="best flin">0.922</span></td>
+    <td><span class=" rr">0.002</span> | <span class=" drr">0.060</span> | <span class=" qfq">0.031</span> | <span class="best flin">0.260</span></td>
+    <td class="drr">DRR</td>
+</tr><tr>
+    <td>s03_size_64x</td>
+    <td><span class="best rr">0.599</span> | <span class="best drr">0.599</span> | <span class="best qfq">0.599</span> | <span class="best flin">0.599</span></td>
+    <td><span class="best rr">0.653</span> | <span class="best drr">0.653</span> | <span class="best qfq">0.653</span> | <span class="best flin">0.653</span></td>
+    <td><span class=" rr">0.860</span> | <span class="best drr">0.992</span> | <span class=" qfq">0.480</span> | <span class=" flin">0.578</span></td>
+    <td><span class=" rr">0.001</span> | <span class=" drr">0.001</span> | <span class="best qfq">0.650</span> | <span class=" flin">0.014</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>s04_read_vs_write</td>
+    <td><span class="best rr">0.962</span> | <span class="best drr">0.962</span> | <span class="best qfq">0.962</span> | <span class="best flin">0.962</span></td>
+    <td><span class="best rr">0.681</span> | <span class="best drr">0.681</span> | <span class="best qfq">0.681</span> | <span class="best flin">0.681</span></td>
+    <td><span class="best rr">0.951</span> | <span class=" drr">0.490</span> | <span class=" qfq">0.476</span> | <span class=" flin">0.793</span></td>
+    <td><span class=" rr">0.031</span> | <span class=" drr">0.035</span> | <span class=" qfq">0.031</span> | <span class="best flin">0.153</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>s05_write_storm</td>
+    <td><span class="best rr">0.818</span> | <span class="best drr">0.818</span> | <span class="best qfq">0.818</span> | <span class="best flin">0.818</span></td>
+    <td><span class="best rr">0.269</span> | <span class="best drr">0.269</span> | <span class="best qfq">0.269</span> | <span class="best flin">0.269</span></td>
+    <td><span class="best rr">0.888</span> | <span class=" drr">0.749</span> | <span class=" qfq">0.724</span> | <span class=" flin">0.767</span></td>
+    <td><span class=" rr">0.000</span> | <span class="best drr">0.156</span> | <span class=" qfq">0.051</span> | <span class=" flin">0.002</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>s06_simultaneous</td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>s07_mixed_sizes</td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">0.662</span> | <span class="best drr">0.662</span> | <span class="best qfq">0.662</span> | <span class="best flin">0.662</span></td>
+    <td><span class="best rr">1.000</span> | <span class=" drr">0.860</span> | <span class=" qfq">0.252</span> | <span class=" flin">0.777</span></td>
+    <td><span class=" rr">0.002</span> | <span class=" drr">0.006</span> | <span class=" qfq">0.005</span> | <span class="best flin">0.017</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>s08_frequency_diff</td>
+    <td><span class="best rr">0.645</span> | <span class="best drr">0.645</span> | <span class="best qfq">0.645</span> | <span class="best flin">0.645</span></td>
+    <td><span class="best rr">0.645</span> | <span class="best drr">0.645</span> | <span class="best qfq">0.645</span> | <span class="best flin">0.645</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">0.726</span> | <span class="best drr">0.726</span> | <span class="best qfq">0.726</span> | <span class="best flin">0.726</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>s09_read_heavy</td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">0.981</span> | <span class="best drr">0.981</span> | <span class="best qfq">0.981</span> | <span class="best flin">0.981</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>s10_write_heavy</td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">0.973</span> | <span class="best drr">0.973</span> | <span class="best qfq">0.973</span> | <span class="best flin">0.973</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>drr_v1_equal_bytes</td>
+    <td><span class="best rr">0.413</span> | <span class="best drr">0.413</span> | <span class="best qfq">0.413</span> | <span class="best flin">0.413</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class=" rr">0.667</span> | <span class="best drr">0.843</span> | <span class=" qfq">0.333</span> | <span class=" flin">0.806</span></td>
+    <td><span class=" rr">0.002</span> | <span class=" drr">0.007</span> | <span class="best qfq">0.109</span> | <span class=" flin">0.083</span></td>
+    <td class="drr">DRR</td>
+</tr><tr>
+    <td>drr_v2_size_256x</td>
+    <td><span class="best rr">0.525</span> | <span class="best drr">0.525</span> | <span class="best qfq">0.525</span> | <span class="best flin">0.525</span></td>
+    <td><span class="best rr">0.653</span> | <span class="best drr">0.653</span> | <span class="best qfq">0.653</span> | <span class="best flin">0.653</span></td>
+    <td><span class=" rr">0.898</span> | <span class="best drr">0.962</span> | <span class=" qfq">0.482</span> | <span class=" flin">0.558</span></td>
+    <td><span class=" rr">0.000</span> | <span class=" drr">0.000</span> | <span class="best qfq">0.118</span> | <span class=" flin">0.006</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>drr_v3_scaled_competition</td>
+    <td><span class="best rr">0.662</span> | <span class="best drr">0.662</span> | <span class="best qfq">0.662</span> | <span class="best flin">0.662</span></td>
+    <td><span class="best rr">1.000</span> | <span class="best drr">1.000</span> | <span class="best qfq">1.000</span> | <span class="best flin">1.000</span></td>
+    <td><span class="best rr">0.862</span> | <span class=" drr">0.576</span> | <span class=" qfq">0.454</span> | <span class=" flin">0.724</span></td>
+    <td><span class=" rr">0.067</span> | <span class="best drr">0.244</span> | <span class=" qfq">0.005</span> | <span class=" flin">0.111</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>flin_v1_pure_rw</td>
+    <td><span class="best rr">0.845</span> | <span class="best drr">0.845</span> | <span class="best qfq">0.845</span> | <span class="best flin">0.845</span></td>
+    <td><span class="best rr">0.653</span> | <span class="best drr">0.653</span> | <span class="best qfq">0.653</span> | <span class="best flin">0.653</span></td>
+    <td><span class="best rr">0.934</span> | <span class=" drr">0.776</span> | <span class=" qfq">0.491</span> | <span class=" flin">0.669</span></td>
+    <td><span class=" rr">0.001</span> | <span class=" drr">0.003</span> | <span class="best qfq">0.631</span> | <span class=" flin">0.003</span></td>
+    <td class="rr">RR</td>
+</tr><tr>
+    <td>flin_v2_write_storm</td>
+    <td><span class="best rr">0.711</span> | <span class="best drr">0.711</span> | <span class="best qfq">0.711</span> | <span class="best flin">0.711</span></td>
+    <td><span class="best rr">0.264</span> | <span class="best drr">0.264</span> | <span class="best qfq">0.264</span> | <span class="best flin">0.264</span></td>
+    <td><span class="best rr">0.862</span> | <span class=" drr">0.748</span> | <span class=" qfq">0.687</span> | <span class=" flin">0.761</span></td>
+    <td><span class=" rr">0.000</span> | <span class="best drr">0.162</span> | <span class=" qfq">0.047</span> | <span class=" flin">0.001</span></td>
+    <td class="rr">RR</td>
+</tr></table>
+
+<script>
+new Chart(document.getElementById('winsChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['RR', 'DRR', 'QFQ', 'FLIN'],
+        datasets: [{
+            data: [13, 2, 0, 0],
+            backgroundColor: ['#ff6b6b', '#4ecdc4', '#ffe66d', '#95e1d3']
+        }]
+    },
+    options: { plugins: { legend: { labels: { color: '#eee' } } } }
+});
+
+new Chart(document.getElementById('homeChart'), {
+    type: 'bar',
+    data: {
+        labels: ['RR (Request)', 'DRR (Byte)', 'QFQ (Latency)', 'FLIN (Slowdown)'],
+        datasets: [{
+            label: '主场胜出次数',
+            data: [15, 15, 5, 7],
+            backgroundColor: ['#ff6b6b', '#4ecdc4', '#ffe66d', '#95e1d3']
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.1)' }, max: 15 },
+            x: { ticks: { color: '#aaa' } }
+        }
+    }
+});
+</script>
+</body></html>

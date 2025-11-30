@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>算法验证报告</title>
+<style>
+body { font-family: Arial; max-width: 1200px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: #eee; }
+h1 { color: #00d9ff; text-align: center; }
+.summary { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
+.stat { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; text-align: center; }
+.stat h2 { margin: 0; font-size: 2em; color: #00ff88; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { padding: 10px; border: 1px solid #333; text-align: left; }
+th { background: #00d9ff33; }
+.pass { color: #00ff88; }
+.fail { color: #ff6b6b; }
+</style></head><body>
+<h1>🔬 算法验证报告</h1>
+<p style="text-align:center">生成时间: 2025-11-30 01:53:08</p>
+
+<div class="summary">
+<div class="stat"><h2>6/7</h2><p>通过测试</p></div>
+<div class="stat"><h2>85.7%</h2><p>通过率</p></div>
+</div>
+
+<h2>📋 验证结果</h2>
+<table>
+<tr><th>场景</th><th>算法</th><th>指标</th><th>预期</th><th>实际</th><th>结果</th></tr>
+<tr>
+<td>drr_v1_equal_bytes</td>
+<td>DRR</td>
+<td>Byte Fairness (Jain)</td>
+<td>DRR >= RR (论文: 字节公平)</td>
+<td>1.0000<br><small>RR=1.0000, DRR=1.0000</small></td>
+<td class="pass">✓ PASS</td>
+</tr><tr>
+<td>drr_v2_size_256x</td>
+<td>DRR</td>
+<td>Byte Fairness (Jain)</td>
+<td>DRR >= RR (论文: 字节公平)</td>
+<td>0.6525<br><small>RR=0.6525, DRR=0.6525</small></td>
+<td class="pass">✓ PASS</td>
+</tr><tr>
+<td>drr_v3_scaled_competition</td>
+<td>DRR</td>
+<td>Byte Fairness (Jain)</td>
+<td>DRR >= RR (论文: 字节公平)</td>
+<td>1.0000<br><small>RR=1.0000, DRR=1.0000</small></td>
+<td class="pass">✓ PASS</td>
+</tr><tr>
+<td>qfq_v1_weight_test</td>
+<td>QFQ</td>
+<td>Weighted Service Priority</td>
+<td>延迟与权重成反比 (权重4,2,1,1)</td>
+<td>0.1383<br><small>延迟: ['0.05ms', '2.04ms', '27.71ms', '27.70ms'], 加权延迟CV=0.862</small></td>
+<td class="fail">✗ FAIL</td>
+</tr><tr>
+<td>flin_v1_pure_rw</td>
+<td>FLIN</td>
+<td>Slowdown Fairness (F)</td>
+<td>FLIN >= RR (论文: 平衡slowdown)</td>
+<td>0.0032<br><small>RR F=0.0006, FLIN F=0.0032</small></td>
+<td class="pass">✓ PASS</td>
+</tr><tr>
+<td>flin_v2_write_storm</td>
+<td>FLIN</td>
+<td>Slowdown Fairness (F)</td>
+<td>FLIN >= RR (论文: 平衡slowdown)</td>
+<td>0.0015<br><small>RR F=0.0001, FLIN F=0.0015</small></td>
+<td class="pass">✓ PASS</td>
+</tr><tr>
+<td>rr_v1_uniform</td>
+<td>ALL</td>
+<td>Uniform Scenario</td>
+<td>所有算法表现相似</td>
+<td>1.0000<br><small>Fairness: rr=1.0000, drr=1.0000, qfq=1.0000, flin=1.0000</small></td>
+<td class="pass">✓ PASS</td>
+</tr></table>
+<h2>📚 参考文献</h2>
+<ul>
+<li><b>DRR</b>: Shreedhar & Varghese, "Efficient Fair Queuing Using Deficit Round-Robin", 1996</li>
+<li><b>QFQ</b>: Demers et al., "Analysis and Simulation of a Fair Queueing Algorithm", 1989</li>
+<li><b>FLIN</b>: Tavakkol et al., "FLIN: Enabling Fairness in NVMe SSDs", ISCA 2018</li>
+</ul>
+</body></html>

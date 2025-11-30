@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>SSD 调度算法测试报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            color: #00d9ff;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        .card h3 {
+            margin: 0;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card p {
+            margin: 10px 0 0;
+            color: #aaa;
+        }
+        .chart-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        th {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .match { color: #00ff88; }
+        .miss { color: #ff6b6b; }
+        .algo-rr { color: #ff6b6b; }
+        .algo-drr { color: #4ecdc4; }
+        .algo-qfq { color: #ffe66d; }
+        .algo-flin { color: #95e1d3; }
+    </style>
+</head>
+<body>
+    <h1>🚀 SSD 调度算法测试报告</h1>
+    <p class="subtitle">生成时间: 2025-11-30 01:54:43 | 测试场景: 15</p>
+    
+    <div class="summary">
+        <div class="card">
+            <h3>66.7%</h3>
+            <p>推荐准确率</p>
+        </div>
+        <div class="card">
+            <h3>10/15</h3>
+            <p>匹配场景数</p>
+        </div>
+        <div class="card">
+            <h3>DRR</h3>
+            <p>最多胜出算法</p>
+        </div>
+        <div class="card">
+            <h3>RR</h3>
+            <p>最多推荐算法</p>
+        </div>
+    </div>
+    
+    <div class="chart-row">
+        <div class="chart-container">
+            <h2>📊 Slowdown Fairness 对比</h2>
+            <canvas id="fairnessChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>🏆 算法胜出统计</h2>
+            <canvas id="winsChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <h2>📋 详细测试结果</h2>
+        <table>
+            <tr>
+                <th>场景</th>
+                <th>特征</th>
+                <th>推荐</th>
+                <th>实际胜者</th>
+                <th>RR</th>
+                <th>DRR</th>
+                <th>QFQ</th>
+                <th>FLIN</th>
+                <th>匹配</th>
+            </tr>
+            <tr>
+                <td>s01_uniform</td>
+                <td>Size:1x, RW:0.00</td>
+                <td class="algo-rr">RR</td>
+                <td>RR/DRR/FLIN</td>
+                <td>0.9921</td>
+                <td>0.9921</td>
+                <td>0.9877</td>
+                <td>0.9921</td>
+                <td class="match">✓</td>
+            </tr>
+            <tr>
+                <td>s02_size_8x</td>
+                <td>Size:8x, RW:0.00</td>
+                <td class="algo-drr">DRR</td>
+                <td>FLIN</td>
+                <td>0.0020</td>
+                <td>0.0598</td>
+                <td>0.0308</td>
+                <td>0.2596</td>
+                <td class="miss">✗</td>
+            </tr>
+            <tr>
+                <td>s03_size_64x</td>
+                <td>Size:64x, RW:0.00</td>
+                <td class="algo-drr">DRR</td>
+                <td>QFQ</td>
+                <td>0.0007</td>
+                <td>0.0013</td>
+                <td>0.6500</td>
+                <td>0.0137</td>
+                <td class="miss">✗</td>
+            </tr>
+            <tr>
+                <td>s04_read_vs_write</td>
+                <td>Size:8x, RW:0.25</td>
+                <td class="algo-flin">FLIN</td>
+                <td>FLIN</td>
+                <td>0.0311</td>
+                <td>0.0351</td>
+                <td>0.0315</td>
+                <td>0.1532</td>
+                <td class="match">✓</td>
+            </tr>
+            <tr>
+                <td>s05_write_storm</td>
+                <td>Size:32x, RW:0.17</td>
+                <td class="algo-drr">DRR</td>
+                <td>DRR</td>
+                <td>0.0002</td>
+                <td>0.1560</td>
+                <td>0.0507</td>
+                <td>0.0019</td>
+                <td class="match">✓</td>
+            </tr>
+            <tr>
+                <td>s06_simultaneous</td>
+                <td>Size:1x, RW:0.00</td>
+                <td class="algo-rr">RR</td>
+                <td>RR/DRR/QFQ/FLIN</td>
+                <td>1.0000</td>
+                <td>1.0000</td>
+                <td>1.0000</td>
+                <td>1.0000</td>
+                <td class="match">✓</td>
+            </tr>
+            <tr>
+                <td>s07_mixed_sizes</td>
+                <td>Size:8x, RW:0.00</td>
+                <td class="algo-drr">DRR</td>
+                <td>FLIN</td>
+                <td>0.0019</td>
+                <td>0.0061</td>
+                <td>0.0053</td>
+                <td>0.0170</td>
+                <td class="miss">✗</td>
+            </tr>
+            <tr>
+                <td>s08_frequency_diff</td>
+                <td>Size:1x, RW:0.00</td>
+                <td class="algo-rr">RR</td>
+                <td>RR/DRR/QFQ/FLIN</td>
+                <td>0.7260</td>
+                <td>0.7260</td>
+                <td>0.7260</td>
+                <td>0.7260</td>
+                <td class="match">✓</td>
+            </tr>
+            <tr>
+                <td>s09_read_heavy</td>
+                <td>Size:1x, RW:0.00</td>
+                <td class="algo-rr">RR</td>
+                <td>RR/DRR/QFQ/FLIN</td>
+                <td>0.9813</td>
+                <td>0.9813</td>
+                <td>0.9811</td>
+                <td>0.9813</td>
+                <td class="match">✓</td>
+            </tr>
+            <tr>
+                <td>s10_write_heavy</td>
+                <td>Size:1x, RW:0.00</td>
+                <td class="algo-rr">RR</td>
+                <td>RR/DRR/QFQ/FLIN</td>
+                <td>0.9730</td>
+                <td>0.9730</td>
+                <td>0.9735</td>
+                <td>0.9730</td>
+                <td class="match">✓</td>
+            </tr>
+            <tr>
+                <td>contention_drr_size_gap</td>
+                <td>Size:64x, RW:0.00</td>
+                <td class="algo-drr">DRR</td>
+                <td>DRR</td>
+                <td>0.0033</td>
+                <td>0.5527</td>
+                <td>0.5233</td>
+                <td>0.0814</td>
+                <td class="match">✓</td>
+            </tr>
+            <tr>
+                <td>contention_flin_read_protect</td>
+                <td>Size:32x, RW:0.25</td>
+                <td class="algo-flin">FLIN</td>
+                <td>DRR/QFQ</td>
+                <td>0.0012</td>
+                <td>0.0782</td>
+                <td>0.0782</td>
+                <td>0.0022</td>
+                <td class="miss">✗</td>
+            </tr>
+            <tr>
+                <td>contention_flin_write_storm</td>
+                <td>Size:64x, RW:0.19</td>
+                <td class="algo-flin">FLIN</td>
+                <td>DRR</td>
+                <td>0.0002</td>
+                <td>0.0212</td>
+                <td>0.0188</td>
+                <td>0.0036</td>
+                <td class="miss">✗</td>
+            </tr>
+            <tr>
+                <td>contention_qfq_simultaneous</td>
+                <td>Size:1x, RW:0.00</td>
+                <td class="algo-rr">RR</td>
+                <td>RR/DRR/QFQ/FLIN</td>
+                <td>1.0000</td>
+                <td>1.0000</td>
+                <td>1.0000</td>
+                <td>1.0000</td>
+                <td class="match">✓</td>
+            </tr>
+            <tr>
+                <td>contention_qfq_sized</td>
+                <td>Size:8x, RW:0.00</td>
+                <td class="algo-qfq">QFQ</td>
+                <td>QFQ</td>
+                <td>0.1256</td>
+                <td>0.2747</td>
+                <td>0.6086</td>
+                <td>0.4457</td>
+                <td class="match">✓</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="chart-container">
+        <h2>📖 选择规则说明</h2>
+        <table>
+            <tr><th>条件</th><th>RR</th><th>DRR</th><th>QFQ</th><th>FLIN</th></tr>
+            <tr><td>size_ratio > 16</td><td>-</td><td>+3.0</td><td>+2.5</td><td>-</td></tr>
+            <tr><td>size_ratio > 4</td><td>-</td><td>+2.0</td><td>+1.5</td><td>-</td></tr>
+            <tr><td>size_ratio ≤ 4</td><td>+1.0</td><td>-</td><td>-</td><td>-</td></tr>
+            <tr><td>rw_variance > 0.1</td><td>-</td><td>-</td><td>-</td><td>+3.0</td></tr>
+            <tr><td>纯读+纯写用户</td><td>-</td><td>-</td><td>-</td><td>+2.0</td></tr>
+            <tr><td>指定权重</td><td>-</td><td>-</td><td>+5.0</td><td>-</td></tr>
+            <tr><td>突发+差异>2x</td><td>-</td><td>-</td><td>+2.0</td><td>-</td></tr>
+            <tr><td>多用户(>4)+差异>4x</td><td>-</td><td>-</td><td>+1.5</td><td>-</td></tr>
+        </table>
+    </div>
+    
+    <script>
+        // Fairness comparison chart
+        new Chart(document.getElementById('fairnessChart'), {
+            type: 'bar',
+            data: {
+                labels: ["s01_uniform", "s02_size_8x", "s03_size_64x", "s04_read_vs_write", "s05_write_storm", "s06_simultaneous", "s07_mixed_sizes", "s08_frequency_diff", "s09_read_heavy", "s10_write_heavy"],
+                datasets: [
+                    { label: 'RR', data: [0.9921145514099348, 0.0019916921018170186, 0.0006855376115602587, 0.031121090135081908, 0.00020917754977388506, 1.0, 0.0018933730398137927, 0.7260383120502089, 0.981301157457149, 0.973044231826347], backgroundColor: 'rgba(255, 107, 107, 0.7)' },
+                    { label: 'DRR', data: [0.9921145514099348, 0.05977339448387878, 0.001344130529494398, 0.035075007790647275, 0.1559651525796629, 1.0, 0.00609445208318425, 0.7260383120502089, 0.981301157457149, 0.973044231826347], backgroundColor: 'rgba(78, 205, 196, 0.7)' },
+                    { label: 'QFQ', data: [0.9876954642004082, 0.030790487894829018, 0.6500303487539649, 0.03146385395646101, 0.05066782087834636, 1.0, 0.005293572657329836, 0.7260383120502089, 0.9810722892499562, 0.9734897615858504], backgroundColor: 'rgba(255, 230, 109, 0.7)' },
+                    { label: 'FLIN', data: [0.9921145514099348, 0.2595624349672284, 0.013663145546291822, 0.1532294290022032, 0.0018946073052685947, 1.0, 0.017013918582932636, 0.7260383120502089, 0.981301157457149, 0.973044231826347], backgroundColor: 'rgba(149, 225, 211, 0.7)' }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: '#eee' } } },
+                scales: {
+                    x: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                    y: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.1)' }, max: 1.1 }
+                }
+            }
+        });
+        
+        // Wins pie chart
+        new Chart(document.getElementById('winsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['RR', 'DRR', 'QFQ', 'FLIN'],
+                datasets: [{
+                    data: [6, 10, 8, 9],
+                    backgroundColor: ['#ff6b6b', '#4ecdc4', '#ffe66d', '#95e1d3']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: '#eee' } } }
+            }
+        });
+    </script>
+</body>
+</html>

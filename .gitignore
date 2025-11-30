@@ -1,0 +1,41 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Compiled files
+*.o
+*.obj
+*.a
+*.lib
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Results (generated)
+results/*.csv
+results/*.json
+
+# Temporary files
+*.tmp
+*.temp
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Traces (can be regenerated)
+# traces/validation/
+# traces/competition/
+# traces/contention/
+

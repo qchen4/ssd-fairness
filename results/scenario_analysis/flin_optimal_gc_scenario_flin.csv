@@ -1,0 +1,4 @@
+user_id,completed,avg_latency_s,avg_throughput_bytes_per_s,total_bytes
+0,150,0.00413591,1.58456e+07,9830400
+1,80,0.000949712,4.31289e+06,327680
+2,80,0.000792091,5.17113e+06,327680

@@ -1,0 +1,4 @@
+user_id,completed,avg_latency_s,total_bytes
+0,20,3.24708e-05,106496
+1,20,3.26958e-05,126976
+2,20,3.29396e-05,110592
