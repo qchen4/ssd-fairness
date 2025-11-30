@@ -51,6 +51,14 @@ public:
     // throughput_fairness_index computes Jain's fairness across per-user throughput.
     double throughput_fairness_index(double runtime_s) const;
 
+    // Wear-leveling statistics: these are global device-level aggregates
+    // captured from the wear-leveling FTL when available.
+    void record_wear_snapshot(const std::vector<std::uint64_t>& erase_counts);
+    double wear_variance() const { return wear_variance_; }
+    std::uint64_t wear_min_erase() const { return wear_min_erase_; }
+    std::uint64_t wear_max_erase() const { return wear_max_erase_; }
+    bool has_wear_stats() const { return wear_stats_valid_; }
+
     // Writes per-user stats to CSV. Returns true on success.
     bool save_csv(const std::string& path) const;
 
@@ -69,6 +77,12 @@ private:
     };
 
     std::vector<UserStats> stats_;
+
+    // Global wear-leveling aggregates.
+    double wear_variance_ = 0.0;
+    std::uint64_t wear_min_erase_ = 0;
+    std::uint64_t wear_max_erase_ = 0;
+    bool wear_stats_valid_ = false;
 };
 
 } // namespace ssd

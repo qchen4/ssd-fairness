@@ -16,6 +16,11 @@ Metrics::Metrics(int num_users) {
 void Metrics::reset(int num_users) {
     stats_.assign(std::max(num_users, 0), {});
     for (auto& s : stats_) s.fairness_ewma = 1.0;
+
+    wear_variance_ = 0.0;
+    wear_min_erase_ = 0;
+    wear_max_erase_ = 0;
+    wear_stats_valid_ = false;
 }
 
 // on_finish accumulates latency and throughput for the provided request.
@@ -142,6 +147,35 @@ double Metrics::throughput_fairness_index(double runtime_s) const {
     return (sum * sum) / (participants * sum_sq);
 }
 
+void Metrics::record_wear_snapshot(const std::vector<std::uint64_t>& erase_counts) {
+    if (erase_counts.empty()) {
+        wear_variance_ = 0.0;
+        wear_min_erase_ = 0;
+        wear_max_erase_ = 0;
+        wear_stats_valid_ = false;
+        return;
+    }
+
+    const std::size_t n = erase_counts.size();
+    std::uint64_t sum = std::accumulate(erase_counts.begin(), erase_counts.end(), std::uint64_t{0});
+    double mean = static_cast<double>(sum) / static_cast<double>(n);
+
+    double acc = 0.0;
+    std::uint64_t min_v = erase_counts.front();
+    std::uint64_t max_v = erase_counts.front();
+    for (auto v : erase_counts) {
+        double d = static_cast<double>(v) - mean;
+        acc += d * d;
+        if (v < min_v) min_v = v;
+        if (v > max_v) max_v = v;
+    }
+
+    wear_variance_ = acc / static_cast<double>(n);
+    wear_min_erase_ = min_v;
+    wear_max_erase_ = max_v;
+    wear_stats_valid_ = true;
+}
+
 uint64_t Metrics::total_bytes_all() const {
     uint64_t sum = 0;
     for (const auto& s : stats_) sum += s.bytes;
@@ -160,7 +194,7 @@ bool Metrics::save_csv(const std::string& path) const {
     if (!out.is_open()) return false;
 
     out << "user_id,completed,avg_latency_s,p95_latency_s,p99_latency_s,total_bytes,"
-           "slowdown_avg,slowdown_ewma\n";
+           "slowdown_avg,slowdown_ewma,wear_variance,wear_min_erase,wear_max_erase\n";
     for (size_t i = 0; i < stats_.size(); ++i) {
         out << i << ","
             << stats_[i].completed << ","
@@ -169,7 +203,10 @@ bool Metrics::save_csv(const std::string& path) const {
             << percentile_latency(static_cast<int>(i), 0.99) << ","
             << stats_[i].bytes << ","
             << fairness_avg(static_cast<int>(i)) << ","
-            << fairness_ewma(static_cast<int>(i)) << "\n";
+            << fairness_ewma(static_cast<int>(i)) << ","
+            << (wear_stats_valid_ ? wear_variance_ : 0.0) << ","
+            << (wear_stats_valid_ ? wear_min_erase_ : 0) << ","
+            << (wear_stats_valid_ ? wear_max_erase_ : 0) << "\n";
     }
     return true;
 }

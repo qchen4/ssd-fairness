@@ -89,7 +89,7 @@ make -j$(nproc)
 | Option | Description |
 | ------ | ----------- |
 | `-t, --trace PATH` | CSV trace to load (`traces/example.csv` by default). |
-| `-s, --scheduler NAME` | Scheduler policy: `fifo`, `rr`, `drr`, `qfq`/`wfq`, `flin`. |
+| `-s, --scheduler NAME` | Scheduler policy: `fifo`, `rr`, `drr`, `qfq`/`wfq`, `flin`, `wear`. |
 | `-q, --quantum BYTES` | DRR quantum size; forwarded to schedulers that use it. |
 | `-u, --users N` | Override number of users; inferred from trace otherwise. |
 | `-c, --channels N` | Number of SSD channels (default 8). |
@@ -103,6 +103,9 @@ make -j$(nproc)
 | `--flin-read-bias B` | Bias toward read-heavy flows (0..1, default 0.25). |
 | `--flin-starvation-window SECONDS` | Idle interval before FLIN boosts a flow (default 0.2s). |
 | `--flin-parallelism-trigger N` | Outstanding threshold that triggers size-aware insertion (default 2). |
+| `--wear-hot-threshold X` | Threshold for classifying hot vs cold writes (used by the wear-leveling scheduler). |
+| `--wear-pool-size N` | Number of candidate blocks examined when choosing the least-worn block. |
+| `--wear-read-balance` | Enable read-balancing across SSD channels (helps spread read load when using wear-leveling). |
 
 Example:
 
@@ -168,6 +171,7 @@ Example:
 | **DeficitRoundRobin (DRR)** | `include/scheduler_impl.hpp` | Adds byte-level fairness by granting quanta to each user until its head request fits. Supports per-user weights. |
 | **WeightedFair (WFQ/QFQ)** | `include/scheduler_impl.hpp` | Approximates weighted fair queuing by tagging requests with virtual finish times and always selecting the smallest tag. |
 | **FLIN** | `include/scheduler_impl.hpp` | Slowdown-aware scheduler that favors flows receiving less than their fair share, using recent service history and a small bias for read-heavy flows. |
+| **Wear-leveling FLIN (`wear`)** | `include/scheduler_impl.hpp`, `include/ftl_wear.hpp` | Extends FLIN with a simple wear-leveling FTL that tracks per-block erase counts, classifies hot vs cold writes, and can optionally balance reads across channels. |
 
 All schedulers implement the `Scheduler` interface:
 
@@ -208,10 +212,15 @@ Key headers:
 After each run the simulator writes `results/results.csv` (or the path provided to `--results`) with per-user summaries:
 
 ```
-user_id,completed,avg_latency_s,p95_latency_s,p99_latency_s,total_bytes,fairness_avg,fairness_ewma
-0,500,0.000812,0.00110,0.00135,2097152,0.97,0.99
-1,500,0.000809,0.00105,0.00130,2097152,1.03,1.01
+user_id,completed,avg_latency_s,p95_latency_s,p99_latency_s,total_bytes,fairness_avg,fairness_ewma,wear_variance,wear_min_erase,wear_max_erase
+0,500,0.000812,0.00110,0.00135,2097152,0.97,0.99,0.0,0,0
+1,500,0.000809,0.00105,0.00130,2097152,1.03,1.01,0.0,0,0
 ```
+
+When running the wear-aware scheduler (`--scheduler wear`), the `wear_*` columns are populated from the internal FTL:
+
+- **wear_variance**: variance of per-block erase counts (lower is better wear distribution).  
+- **wear_min_erase / wear_max_erase**: minimum and maximum erase counts across all blocks, useful for tracking max–min wear gaps.
 
 It also prints to stdout:
 

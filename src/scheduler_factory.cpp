@@ -21,6 +21,9 @@ std::unique_ptr<Scheduler> make_scheduler(const std::string& policy) {
     if (policy == "flin") {
         return std::make_unique<FlinScheduler>();
     }
+    if (policy == "wear" || policy == "wear-flin") {
+        return std::make_unique<WearLevelScheduler>();
+    }
     return nullptr;
 }
 } // namespace ssd

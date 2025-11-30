@@ -21,6 +21,11 @@ struct SchedulerSettings {
     double flin_read_bias = 0.25;
     double flin_starvation_window = 0.2;
     int flin_parallelism_trigger = 2;
+
+    // Wear-leveling parameters used by the wear-aware scheduler.
+    double wear_hot_threshold = 4.0; // Hot/cold write classification threshold.
+    int wear_pool_size = 16;         // Candidate blocks to examine per write.
+    bool wear_read_balance = false;  // Enable read-balancing across channels.
 };
 
 struct SimulationOptions {

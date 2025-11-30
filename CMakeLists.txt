@@ -10,6 +10,7 @@ set(CORE_SOURCES
     src/scheduler_factory.cpp
     src/simulator.cpp
     src/ssd.cpp
+    src/ftl_wear.cpp
     src/trace_reader.cpp
     src/util.cpp
 )
@@ -31,6 +32,7 @@ set(TEST_SOURCES
     tests/metrics_tests.cpp
     tests/scheduler_tests.cpp
     tests/simulator_tests.cpp
+    tests/wear_tests.cpp
 )
 add_executable(ssd-fairness-tests ${TEST_SOURCES})
 target_link_libraries(ssd-fairness-tests PRIVATE ssd-fairness-core)

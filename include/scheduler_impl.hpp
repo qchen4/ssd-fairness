@@ -3,6 +3,7 @@
 
 #include "metrics.hpp"
 #include "scheduler.hpp"
+#include "ftl_wear.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -502,6 +503,66 @@ public:
                             " share=", share, " fairness=", fairness_ratio,
                             " fairness_ewma=", f.fairness_ewma);
     }
+};
+
+// WearLevelScheduler composes FLIN's slowdown-aware fairness with a simple
+// wear-leveling FTL that tracks per-block erase counts and classifies writes
+// as hot or cold. The SSD timing model remains unchanged; wear-leveling is
+// surfaced via Metrics so experiments can compare wear variance across
+// scheduler policies.
+class WearLevelScheduler : public FlinScheduler {
+public:
+    WearLevelScheduler() = default;
+
+    // Configure wear-leveling parameters and (re)initialize the FTL model.
+    void set_wear_config(const WearLevelConfig& cfg, int /*num_channels*/) {
+        wear_cfg_ = cfg;
+        ftl_ = WearLevelFtl(wear_cfg_);
+    }
+
+    void set_users(int n) override {
+        FlinScheduler::set_users(n);
+        if (wear_cfg_.total_blocks == 0) wear_cfg_.total_blocks = 1024;
+        ftl_.reset(wear_cfg_.total_blocks);
+    }
+
+    void enqueue(const Request& r) override {
+        Request mapped = r;
+
+        if (mapped.op == OpType::WRITE) {
+            bool is_hot = false;
+            std::uint64_t block = ftl_.map_write(mapped.lba, &is_hot);
+            (void)block;
+            detail::sched_debug("[wear enqueue] uid=", mapped.user_id,
+                                " lba=", mapped.lba,
+                                " hot=", is_hot ? 1 : 0);
+        } else if (mapped.op == OpType::READ) {
+            // Ensure a stable mapping exists for reads, even if this is the
+            // first access to the LBA.
+            (void)ftl_.map_read(mapped.lba);
+        }
+
+        FlinScheduler::enqueue(mapped);
+    }
+
+    void on_request_finished(const Request& req,
+                             double finish_time,
+                             Metrics* metrics) override {
+        FlinScheduler::on_request_finished(req, finish_time, metrics);
+
+        if (req.op == OpType::WRITE) {
+            ftl_.on_write_completed(req.lba);
+            if (metrics) {
+                metrics->record_wear_snapshot(ftl_.erase_counts());
+            }
+        }
+    }
+
+    const WearLevelFtl& ftl() const { return ftl_; }
+
+private:
+    WearLevelConfig wear_cfg_{};
+    WearLevelFtl ftl_;
 };
 
 } // namespace ssd

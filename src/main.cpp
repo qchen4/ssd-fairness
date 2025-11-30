@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     auto print_usage = []() {
         std::cout << "Usage: ssd-fairness [options]\n"
                   << "  -t, --trace PATH               Input trace CSV or blktrace text file\n"
-                  << "  -s, --scheduler NAME           fifo | rr | drr | qfq | wfq | flin\n"
+                  << "  -s, --scheduler NAME           fifo | rr | drr | qfq | wfq | flin | wear\n"
                   << "  -q, --quantum BYTES            DRR quantum size\n"
                   << "  -u, --users N                  Override number of users (else inferred)\n"
                   << "  -c, --channels N               Number of SSD channels\n"
@@ -31,6 +31,9 @@ int main(int argc, char** argv) {
                   << "      --flin-read-bias B         Bias toward read-heavy flows (0..1)\n"
                   << "      --flin-starvation-window S Idle time before FLIN boosts a flow\n"
                   << "      --flin-parallelism-trigger N Outstanding threshold for size-aware insert\n"
+                  << "      --wear-hot-threshold X     Threshold for hot vs cold writes\n"
+                  << "      --wear-pool-size N         Candidate blocks examined per write\n"
+                  << "      --wear-read-balance        Enable read-balancing across channels\n"
                   << "Example: ./ssd-fairness --trace traces/ssdtrace-sample --scheduler flin\n";
     };
 
@@ -49,6 +52,9 @@ int main(int argc, char** argv) {
     double flin_read_bias = 0.25;
     double flin_starvation_window = 0.2;
     int flin_parallelism_trigger = 2;
+    double wear_hot_threshold = 4.0;
+    int wear_pool_size = 16;
+    bool wear_read_balance = false;
 
     static option longopts[] = {
         {"trace", required_argument, 0, 't'},
@@ -67,6 +73,9 @@ int main(int argc, char** argv) {
         {"flin-read-bias", required_argument, 0, 0},
         {"flin-starvation-window", required_argument, 0, 0},
         {"flin-parallelism-trigger", required_argument, 0, 0},
+        {"wear-hot-threshold", required_argument, 0, 0},
+        {"wear-pool-size", required_argument, 0, 0},
+        {"wear-read-balance", no_argument, 0, 0},
         {0,0,0,0}
     };
 
@@ -98,6 +107,12 @@ int main(int argc, char** argv) {
             flin_starvation_window = atof(optarg);
         } else if (opt == 0 && std::string(longopts[long_index].name) == "flin-parallelism-trigger") {
             flin_parallelism_trigger = atoi(optarg);
+        } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-hot-threshold") {
+            wear_hot_threshold = atof(optarg);
+        } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-pool-size") {
+            wear_pool_size = atoi(optarg);
+        } else if (opt == 0 && std::string(longopts[long_index].name) == "wear-read-balance") {
+            wear_read_balance = true;
         } else {
             print_usage();
             return 1;
@@ -133,6 +148,9 @@ int main(int argc, char** argv) {
     sched_settings.flin_read_bias = flin_read_bias;
     sched_settings.flin_starvation_window = flin_starvation_window;
     sched_settings.flin_parallelism_trigger = flin_parallelism_trigger;
+    sched_settings.wear_hot_threshold = wear_hot_threshold;
+    sched_settings.wear_pool_size = wear_pool_size;
+    sched_settings.wear_read_balance = wear_read_balance;
 
     ssd::SimulationOptions opts;
     opts.device_cfg = sim_cfg;

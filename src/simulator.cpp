@@ -39,6 +39,16 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
         flin->set_config(cfg);
     }
 
+    if (auto* wear = dynamic_cast<WearLevelScheduler*>(scheduler.get())) {
+        WearLevelConfig wcfg;
+        wcfg.hot_threshold = opts_.scheduler.wear_hot_threshold;
+        wcfg.pool_size = opts_.scheduler.wear_pool_size;
+        wcfg.balance_reads = opts_.scheduler.wear_read_balance;
+        int channels = opts_.device_cfg.num_channels > 0 ? opts_.device_cfg.num_channels : 1;
+        wcfg.total_blocks = static_cast<std::size_t>(channels) * 1024;
+        wear->set_wear_config(wcfg, opts_.device_cfg.num_channels);
+    }
+
     SSD device(opts_.device_cfg);
     EventQueue queue;
     Metrics metrics(num_users);
@@ -46,6 +56,7 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
     size_t next_request = 0;
     double now = 0.0;
     size_t completed = 0;
+    int last_read_channel = -1;
 
     while (next_request < trace.size() || !scheduler->empty() || !queue.empty()) {
         while (next_request < trace.size() && trace[next_request].arrival_ts <= now) {
@@ -54,14 +65,30 @@ SimulationResult Simulator::run(std::unique_ptr<Scheduler> scheduler,
         }
 
         while (true) {
-            int chan = device.first_free_channel(now);
-            if (chan < 0) break;
+            int any_free = device.first_free_channel(now);
+            if (any_free < 0) break;
 
             auto uid = scheduler->pick_user(now);
             if (!uid) break;
 
             auto req = scheduler->pop(*uid);
             if (!req) break;
+
+            int chan = any_free;
+            if (opts_.scheduler.wear_read_balance && req->op == OpType::READ) {
+                int num_ch = device.num_channels();
+                if (num_ch > 0) {
+                    int start = (last_read_channel + 1 + num_ch) % num_ch;
+                    for (int i = 0; i < num_ch; ++i) {
+                        int cand = (start + i) % num_ch;
+                        if (device.is_free(cand, now)) {
+                            chan = cand;
+                            break;
+                        }
+                    }
+                }
+                last_read_channel = chan;
+            }
 
             req->start_ts = now;
             req->finish_ts = device.dispatch(chan, *req, now);
