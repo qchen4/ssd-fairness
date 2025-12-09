@@ -1,0 +1,4 @@
+user_id,completed,avg_latency_s,p95_latency_s,p99_latency_s,total_bytes,slowdown_avg,slowdown_ewma,wear_variance,wear_min_erase,wear_max_erase
+0,1,1.5625e-05,1.5625e-05,1.5625e-05,4096,0,0,0,0,0
+1,1,1.5625e-05,1.5625e-05,1.5625e-05,4096,0,0,0,0,0
+2,0,0,0,0,0,0,0,0,0,0
