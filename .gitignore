@@ -1,3 +1,6 @@
+# Cursor/Editor specific
+.cursor/
+
 # Compiled Object files
 *.o
 *.obj
@@ -190,7 +193,6 @@ experiments/results/*.png
 !experiments/results/.gitkeep
 
 # Cursor/Editor specific
-.cursor/
 .vscode/
 *.code-workspace
 
