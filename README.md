@@ -1,15 +1,14 @@
 # SSD Fairness Scheduling Algorithms
 
-Implementation of six scheduling algorithms for SSD fairness evaluation in both Lightweight Simulator and MQSim.
+Implementation of five scheduling algorithms for SSD fairness evaluation in both Lightweight Simulator and MQSim.
 
-## Algorithms Implemented
+## Algorithms
 
 1. **Round Robin (RR)** - Request-level round-robin scheduling
 2. **Deficit Round Robin (DRR)** - Byte-level fairness with deficit counters
 3. **Quick Fair Queueing (QFQ)** - Weighted fair queueing approximation
 4. **MINMAX** - Minimizes worst-case slowdown disparity
-5. **BFQ-Lite** - Budget-based proportional scheduling
-6. **FLIN** - Slowdown-aware fairness scheduler
+5. **FLIN** - Slowdown-aware fairness scheduler
 
 ## Project Structure
 
@@ -42,7 +41,7 @@ make
 ```
 
 Edit `ssdconfig.xml` to set `<Transaction_Scheduling_Policy>` to one of:
-- `RR`, `DRR`, `QFQ`, `MINMAX`, `BFQ_LITE`, `FLIN`
+- `QFQ`, `MINMAX`, `FLIN` (RR and DRR not yet implemented in MQSim)
 
 ## Testing
 
@@ -56,16 +55,16 @@ Run automated tests:
 See `docs/README.md` for complete documentation index.
 
 **Key Documents:**
-- `STATUS_REPORT.md` - Current implementation status
-- `PERFORMANCE_EVALUATION.md` - Test results and analysis
-- `IMPLEMENTATION_COMPLETE.md` - Detailed completion report
+- `docs/STATUS.md` - Current implementation status
+- `docs/IMPLEMENTATION.md` - Implementation details
+- `docs/BUILD.md` - Build instructions
 
 ## Status
 
-✅ **Implementation:** 100% Complete  
-✅ **Lightweight Simulator Testing:** Complete  
-⏳ **MQSim Testing:** Pending build completion  
-⚠️ **Known Issue:** BFQ-Lite throughput needs optimization
+✅ **Lightweight Simulator:** 5/5 schedulers implemented  
+✅ **MQSim:** 3/5 schedulers implemented (QFQ, FLIN, MINMAX)  
+✅ **Build:** Both simulators build successfully  
+⏳ **Pending:** RR and DRR implementation in MQSim
 
 ## Citation
 

@@ -109,6 +109,7 @@ Lightweight_Simulator/build/
 *.bak
 *.backup
 *.orig
+/tmp/
 
 # OS files
 .DS_Store
@@ -160,11 +161,17 @@ docs/.doctrees/
 *.bcf
 *.run.xml
 
-# MQSim build artifacts (if any)
+# MQSim build artifacts
 MQSim/build/
 MQSim/*.o
 MQSim/*.a
 MQSim/*.so
+MQSim/MQSim
+MQSim.zip
+MQSim/results/*/
+MQSim/results/*.log
+MQSim/results/*.zip
+!MQSim/results/.gitkeep
 
 # Test data (optional - uncomment if test data shouldn't be tracked)
 # test_data/traces/*.csv
