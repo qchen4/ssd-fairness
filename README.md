@@ -41,7 +41,7 @@ make
 ```
 
 Edit `ssdconfig.xml` to set `<Transaction_Scheduling_Policy>` to one of:
-- `QFQ`, `MINMAX`, `FLIN` (RR and DRR not yet implemented in MQSim)
+- `RR`, `DRR`, `QFQ`, `MINMAX`, `FLIN`
 
 ## Testing
 
@@ -62,9 +62,9 @@ See `docs/README.md` for complete documentation index.
 ## Status
 
 ✅ **Lightweight Simulator:** 5/5 schedulers implemented  
-✅ **MQSim:** 3/5 schedulers implemented (QFQ, FLIN, MINMAX)  
+✅ **MQSim:** 5/5 schedulers implemented (RR, DRR, QFQ, FLIN, MINMAX)  
 ✅ **Build:** Both simulators build successfully  
-⏳ **Pending:** RR and DRR implementation in MQSim
+⏳ **Pending:** Build verification and testing of new schedulers
 
 ## Citation
 

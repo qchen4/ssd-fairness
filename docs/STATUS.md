@@ -6,15 +6,15 @@
 
 ## Implementation Status
 
-### MQSim (3/5 schedulers)
+### MQSim (5/5 schedulers)
 
 | Algorithm | Status | Notes |
 |-----------|--------|-------|
 | **QFQ** | ✅ Complete | TSU_QFQ.h/cpp - Enum, Factory, XML integrated |
 | **FLIN** | ✅ Complete | TSU_FLIN.h/cpp - Bug fixed (OUT_OF_ORDER → FLIN) |
 | **MINMAX** | ✅ Complete | TSU_MinMax.h/cpp - Enum, Factory, XML integrated |
-| **RR** | ❌ Not Implemented | Needs implementation |
-| **DRR** | ❌ Not Implemented | Needs implementation |
+| **RR** | ✅ Implemented | TSU_RR.h/cpp - Round-robin per stream, Enum, Factory, XML integrated |
+| **DRR** | ✅ Implemented | TSU_DRR.h/cpp - Deficit round-robin with quantum, Enum, Factory, XML integrated |
 
 ### Lightweight Simulator (5/5 schedulers)
 
@@ -54,10 +54,10 @@
 
 ## Next Steps
 
-1. Test existing schedulers (QFQ, FLIN, MINMAX) with sample workloads
-2. Implement RR scheduler in MQSim
-3. Implement DRR scheduler in MQSim
-4. Cross-validate results between simulators
+1. ⏳ Build verification - Test compilation of RR and DRR schedulers
+2. ⏳ Test all schedulers (QFQ, FLIN, MINMAX, RR, DRR) with sample workloads
+3. ⏳ Cross-validate results between simulators
+4. ⏳ Update Final_Report.tex with complete implementation status
 
 ---
 
