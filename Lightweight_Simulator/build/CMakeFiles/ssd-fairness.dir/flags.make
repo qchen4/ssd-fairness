@@ -4,7 +4,7 @@
 # compile CXX with /usr/local/pace-apps/spack/packages/linux-rhel9-x86_64_v3/gcc-11.3.1/gcc-12.3.0-ukkkutsxfl5kpnnaxflpkq2jtliwthfz/bin/g++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/hice1/qchen438/Documents/ssd-fairness/Lightweight_Simulator/../include -I/home/hice1/qchen438/Documents/ssd-fairness/Lightweight_Simulator/include
+CXX_INCLUDES = -I/home/hice1/qchen438/Documents/ssd-fairness/Lightweight_Simulator/include
 
 CXX_FLAGS = -std=gnu++17 -Wall -Wextra -Wpedantic
 
