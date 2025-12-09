@@ -1,0 +1,22 @@
+\subsection{Stress-Test Workloads}
+
+Initial experiments with a broad set of 12 workloads showed that many scenarios are either already balanced or dominated by backend GC effects, leading all schedulers to exhibit similar Jain's indices. To more clearly expose scheduler design trade-offs, we introduce three additional `stress-test' workloads that emphasize host-level unfairness: \emph{bully--victim}, \emph{multi-queue imbalance}, and \emph{read--write interference}. These scenarios highlight where sophisticated schedulers such as QFQ, FLIN, and our Min--Max slowdown-aware policy provide tangible fairness improvements over simpler baselines.
+
+\subsubsection{Bully--Victim Workload}
+
+The \emph{bully--victim} workload (\texttt{workload\_stress\_bully\_victim.xml}) creates a two-flow scenario where both flows issue identical read requests (8~KB, 100\% reads), but with dramatically different load intensities. The victim flow (Flow~0) operates with a shallow queue depth of 4 requests and a bandwidth target of 100~MB/s, while the bully flow (Flow~1) maintains a deep queue of 64 requests and targets 800~MB/s---an 8$\times$ bandwidth differential.
+
+Under simple round-robin or out-of-order scheduling, the bully flow's deeper queue ensures it receives the majority of service opportunities, causing the victim to experience significant slowdown. This workload effectively distinguishes schedulers that provide proportional fairness (DRR, QFQ) or slowdown-aware fairness (MINMAX, FLIN) from those that merely distribute service opportunities equally without considering flow demands.
+
+\subsubsection{Multi-Queue Imbalance Workload}
+
+The \emph{multi-queue imbalance} workload (\texttt{workload\_stress\_multiqueue.xml}) models a common multi-tenant scenario where a greedy application opens multiple I/O queues to maximize its share of device resources. The workload consists of one small victim flow (Flow~0) with a queue depth of 8 and 100~MB/s target bandwidth, competing against four identical heavy flows (Flows~1--4), each with queue depth 64 and 400~MB/s target bandwidth.
+
+Queue-level round-robin schedulers effectively give the greedy tenant four times more scheduling opportunities than the victim, leading to severe starvation. This workload tests whether schedulers can maintain fairness at the \emph{flow} level rather than the \emph{queue} level, and whether slowdown-aware policies can prevent the victim from being crushed despite the numerical disadvantage in queue count.
+
+\subsubsection{Read--Write Interference Workload}
+
+The \emph{read--write interference} workload (\texttt{workload\_stress\_rw\_interference.xml}) combines a latency-sensitive read flow with a write-heavy background job on overlapping address ranges. The read flow (Flow~0) issues small 4~KB read requests with a shallow queue depth of 4 and 50~MB/s target, while the write flow (Flow~1) issues large 32~KB write requests with queue depth 64 and 800~MB/s target. Both flows access overlapping logical block address (LBA) ranges, ensuring that write operations and garbage collection (GC) activities directly interfere with read performance.
+
+This workload is particularly well-suited for evaluating FLIN, which is designed to mitigate read starvation by intelligently scheduling around GC operations and read--write conflicts. Simple schedulers (RR, OUT\_OF\_ORDER) and even proportional schedulers (QFQ) may allow writes and GC to block reads, resulting in large read slowdowns. FLIN should demonstrate superior performance by scheduling around these conflicts, while MINMAX may also improve read flow performance if it computes per-flow slowdowns correctly.
+
