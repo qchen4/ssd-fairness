@@ -13,10 +13,11 @@ Implementation of five scheduling algorithms for SSD fairness evaluation in both
 ## Project Structure
 
 - [Lightweight_Simulator/](Lightweight_Simulator/) - C++17 lightweight simulator
+  - `include/` - Simulator headers
+  - `experiments/` - Experiment results and traces
 - [MQSim/](MQSim/) - MQSim SSD simulator
-- [include/](include/) - Shared headers
 - [docs/](docs/) - Documentation
-- [scripts/](scripts/) - Test and utility scripts
+- [scripts/](scripts/) - Test and utility scripts (integration tests for both simulators)
 - [README.md](README.md) - This file
 
 ## Quick Start

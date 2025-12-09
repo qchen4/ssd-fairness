@@ -188,11 +188,11 @@ MQSim/*_fairness_*.zip
 # test_data/traces/*.csv
 
 # Experiment results (optional)
-experiments/results/*.csv
-experiments/results/*.png
-!experiments/results/.gitkeep
-experiments/traces/*.csv
-experiments/experiments_summary.csv
+Lightweight_Simulator/experiments/results/*.csv
+Lightweight_Simulator/experiments/results/*.png
+!Lightweight_Simulator/experiments/results/.gitkeep
+Lightweight_Simulator/experiments/traces/*.csv
+Lightweight_Simulator/experiments/experiments_summary.csv
 
 # Cursor/Editor specific
 .vscode/

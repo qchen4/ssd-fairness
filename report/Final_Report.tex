@@ -14,7 +14,6 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{xcolor}
-\usepackage{tikz}
 
 \hypersetup{
     colorlinks=true,
@@ -35,23 +34,7 @@
 % ABSTRACT
 % ------------------------------------------------------------------
 \begin{abstract}
-Solid-state drives (SSDs) increasingly serve multi-tenant environments where 
-multiple applications issue concurrent I/O requests. When tenants share internal
-SSD hardware resources, default round-robin scheduling often leads to unfair
-performance allocation, starvation of smaller tenants, and violation of quality-of-service (QoS) guarantees.
-This work uses the MQSim SSD simulator to implement and evaluate several 
-fairness-aware scheduling algorithms—Round Robin (RR), Deficit Round Robin (DRR), 
-Quick Fair Queueing (QFQ), FLIN, and a novel Min--Max fairness scheduler—inside 
-MQSim's Transaction Scheduling Unit (TSU). We evaluate these schedulers across 
-14 diverse multi-tenant workloads to study throughput fairness, latency isolation, 
-and weighted service proportionality. Our experimental results demonstrate that 
-the proposed Min--Max scheduler achieves the highest average fairness index (0.8555) 
-and lowest coefficient of variation (0.3326) across all workloads, significantly 
-outperforming other schedulers in multi-flow scenarios. RR and DRR achieve identical 
-fairness performance (0.8412), while QFQ shows slightly lower fairness (0.8286). 
-All schedulers maintain 100\% request completion, demonstrating that fairness can 
-be achieved without sacrificing reliability. We conclude that fairness-oriented 
-scheduling in SSD controllers is essential to predictable performance in multi-tenant systems.
+Solid-state drives (SSDs) increasingly serve multi-tenant environments where multiple applications issue concurrent I/O requests. When tenants share internal SSD hardware resources, default round-robin scheduling often leads to unfair performance allocation, starvation of smaller tenants, and violation of quality-of-service (QoS) guarantees. This work uses the MQSim SSD simulator to implement and evaluate several fairness-aware scheduling algorithms—Round Robin (RR), Deficit Round Robin (DRR), Quick Fair Queueing (QFQ), FLIN, and a novel Min--Max fairness scheduler—inside MQSim's Transaction Scheduling Unit (TSU). We evaluate these schedulers across 14 diverse multi-tenant workloads to study throughput fairness, latency isolation, and weighted service proportionality. Our experimental results demonstrate that the proposed Min--Max scheduler achieves the highest average fairness index (0.8555) and lowest coefficient of variation (0.3326) across all workloads, significantly outperforming other schedulers in multi-flow scenarios. RR and DRR achieve identical fairness performance (0.8412), while QFQ shows slightly lower fairness (0.8286). All schedulers maintain 100\% request completion, demonstrating that fairness can be achieved without sacrificing reliability. We conclude that fairness-oriented scheduling in SSD controllers is essential to predictable performance in multi-tenant systems.
 \end{abstract}
 
 % ------------------------------------------------------------------
@@ -59,15 +42,9 @@ scheduling in SSD controllers is essential to predictable performance in multi-t
 % ------------------------------------------------------------------
 \section{Introduction}
 
-Modern SSDs operate as shared resources for multiple independent applications,
-virtual machines, and containers. These tenants issue diverse read/write
-patterns that contend for limited internal resources such as channels, chips,
-and flash planes. Without careful scheduling, contention may lead to severe 
-unfairness: one tenant may monopolize the SSD while others experience extreme 
-latency slowdowns.
+Modern SSDs operate as shared resources for multiple independent applications, virtual machines, and containers. These tenants issue diverse read/write patterns that contend for limited internal resources such as channels, chips, and flash planes. Without careful scheduling, contention may lead to severe unfairness: one tenant may monopolize the SSD while others experience extreme latency slowdowns.
 
-The default scheduling policy in MQSim, \textbf{Round Robin (RR)}, distributes
-service opportunities equally across flows, but does not consider:
+The default scheduling policy in MQSim, \textbf{Round Robin (RR)}, distributes service opportunities equally across flows, but does not consider:
 \begin{itemize}
     \item varying request sizes,
     \item asymmetric read and write latency,
@@ -85,9 +62,7 @@ To address these issues, we investigate five fairness schedulers:
     \item \textbf{Min--Max Fairness Scheduler (proposed)} — minimizes worst-case slowdown gap by selecting flows with minimum service-to-weight ratios.
 \end{enumerate}
 
-All schedulers are implemented directly into MQSim's Transaction Scheduling Unit (TSU)
-and evaluated across 14 diverse multi-tenant workloads, including synthetic scenarios
-and real-world trace-based workloads.
+All schedulers are implemented directly into MQSim's Transaction Scheduling Unit (TSU) and evaluated across 14 diverse multi-tenant workloads, including synthetic scenarios and real-world trace-based workloads. In contrast to prior studies that often consider schedulers in isolation, our integration of multiple algorithms into the same framework enables a direct head-to-head comparison. This approach advances the state-of-the-art by revealing new insights (e.g., identifying cases where a more complex scheduler provides no benefit over simpler round-robin) and elucidating fairness-performance trade-offs in multi-tenant SSD scheduling.
 
 \subsection*{Contributions}
 \begin{itemize}
@@ -108,6 +83,12 @@ and real-world trace-based workloads.
 Fairness in storage systems has been extensively studied. \textbf{BFQ}~\cite{bfq} provides proportional-share scheduling using budgets, while \textbf{FlashFQ}~\cite{flashfq} adapts virtual-time scheduling for SSDs. \textbf{MQFQ}~\cite{mqfq} implements scalable fair queueing for NVMe multi-queues, and \textbf{FLIN}~\cite{flin} addresses device-level fairness through interference mitigation. Our work extends this line of research by implementing multiple schedulers in MQSim and providing a comprehensive evaluation across diverse workloads.
 
 MQSim~\cite{mqsim} is a state-of-the-art SSD simulator that accurately models modern multi-queue NVMe SSDs, including detailed flash memory characteristics, channel-level parallelism, and transaction scheduling. We leverage MQSim's extensible architecture to implement and evaluate fairness-oriented schedulers.
+
+\subsection{Industry Scheduling Policies}
+
+In practice, operating systems and device firmware employ various simple I/O schedulers. The Linux kernel's legacy \textbf{CFQ} (Completely Fair Queueing) scheduler aimed to distribute I/O bandwidth fairly among processes using time-sliced sharing. It was later superseded by \textbf{BFQ}~\cite{bfq} (Budget Fair Queueing) for single-queue devices, which provides improved proportional fairness via per-process budgets. Other common OS-level policies include \textbf{noop}, which performs no request reordering (a simple FIFO approach suitable for fast devices that handle their own internal scheduling), and \textbf{Deadline}, which assigns deadlines to requests to ensure no starvation by prioritizing older requests. More recently, Linux introduced \textbf{Kyber}, a multi-queue scheduler optimized for NVMe SSDs that uses token-based concurrency control and separate read/write queues to maintain low tail latencies rather than enforce strict per-flow fairness.
+
+At the device level, the NVMe specification provides a basic hardware arbitration mechanism—typically a weighted round-robin across submission queues with an optional urgent priority class. This ensures each host queue receives service opportunities but does not guarantee fine-grained fairness among concurrent flows. Overall, industry-standard schedulers primarily focus on throughput and latency optimizations, offering limited fairness control. This gap motivates advanced fairness mechanisms inside the SSD controller itself, as explored in this work.
 
 \subsection{SSD Architecture}
 SSDs are composed of multiple levels of parallelism:
@@ -146,8 +127,7 @@ RR cycles through flows in fixed order.
 It is simple but unfair when flows have different workloads or weights.
 
 \subsubsection{Deficit Round Robin (DRR)}
-DRR allocates each flow $i$ a quantum $Q_i$ proportional to its weight.
-A deficit counter $D_i$ accumulates unused credits.
+DRR allocates each flow $i$ a quantum $Q_i$ proportional to its weight. A deficit counter $D_i$ accumulates unused credits.
 
 \begin{algorithm}[h]
 \caption{Deficit Round Robin (DRR)}
@@ -163,8 +143,7 @@ A deficit counter $D_i$ accumulates unused credits.
 \end{algorithm}
 
 \subsubsection{Quick Fair Queueing (QFQ)}
-QFQ estimates weighted finish times without the cost of WFQ.
-Requests are scheduled in increasing order of virtual finish tags.
+QFQ estimates weighted finish times without the cost of WFQ. Requests are scheduled in increasing order of virtual finish tags.
 
 \subsubsection{Min--Max Fairness (Proposed)}
 To minimize cross-tenant slowdown disparity, we define a service-to-weight ratio:
@@ -410,8 +389,7 @@ Solo-flow validation experiments were conducted to confirm correctness and estab
 
 \subsection{Schedulers and Scenarios}
 
-We use MQSim as the underlying SSD simulator and evaluate four scheduling
-policies implemented in its Transaction Scheduling Unit (TSU):
+We use MQSim as the underlying SSD simulator and evaluate four scheduling policies implemented in its Transaction Scheduling Unit (TSU):
 \begin{itemize}
     \item RR: baseline round-robin scheduling.
     \item DRR: Deficit Round Robin with per-flow quanta.
@@ -419,16 +397,12 @@ policies implemented in its Transaction Scheduling Unit (TSU):
     \item MINMAX: proposed Min--Max fairness scheduler.
 \end{itemize}
 
-We design three multi-tenant scenarios, each encoded as a separate
-\texttt{IO\_Scenario} block in \texttt{workload.xml}:
+We design three multi-tenant scenarios, each encoded as a separate \texttt{IO\_Scenario} block in \texttt{workload.xml}:
 
 \begin{description}
-    \item[F1: Bandwidth Hog vs Small Tenant] Two synthetic write-heavy flows
-    with different average queue depths.
-    \item[F2: QoS Scenario] Two synthetic read-only flows with different
-    priority classes (URGENT vs HIGH).
-    \item[F3: Trace-Based Scenario] A TPCC-like OLTP workload using the
-    provided \texttt{tpcc-small.trace} file.
+    \item[F1: Bandwidth Hog vs Small Tenant] Two synthetic write-heavy flows with different average queue depths.
+    \item[F2: QoS Scenario] Two synthetic read-only flows with different priority classes (URGENT vs HIGH).
+    \item[F3: Trace-Based Scenario] A TPCC-like OLTP workload using the provided \texttt{tpcc-small.trace} file.
 \end{description}
 
 For each combination of scheduler and scenario, we run MQSim via:
@@ -449,8 +423,7 @@ From the MQSim output, we extract the following per-flow metrics:
 We then compute higher-level fairness metrics in a separate Python script:
 \begin{itemize}
     \item Jain's fairness index over per-flow IOPS,
-    \item slowdown fairness, defined as the ratio between each flow's solo-run
-    throughput and its shared-run throughput,
+    \item slowdown fairness, defined as the ratio between each flow's solo-run throughput and its shared-run throughput,
     \item weighted fairness accuracy (for weighted scenarios).
 \end{itemize}
 
@@ -482,7 +455,7 @@ Table~\ref{tab:exp-matrix} shows the overall experiment matrix.
 
 
 % ------------------------------------------------------------------
-% 5. EXPERIMENTAL RESULTS (WITH PLACEHOLDER VALUES)
+% 5. EXPERIMENTAL RESULTS 
 % ------------------------------------------------------------------
 \section{Experimental Results}
 
@@ -550,7 +523,7 @@ MINMAX & \textbf{0.9576} & \textbf{0.9384} \\
 \end{tabular}
 \end{table}
 
-MINMAX achieves the highest Jain's fairness index (0.9576) and weighted accuracy (0.9384), representing a 8.6\% improvement over RR/DRR and a 13.0\% improvement over QFQ. Notably, RR and DRR achieve identical fairness metrics, suggesting that for this workload, DRR's byte-level fairness mechanism does not provide advantages over simple round-robin. QFQ shows lower fairness than expected, possibly due to its virtual finish time approximation not perfectly handling the workload characteristics. MINMAX's superior performance demonstrates the effectiveness of its min-max approach in minimizing worst-case unfairness.
+MINMAX achieves the highest Jain's fairness index (0.9576) and weighted accuracy (0.9384), representing an 8.6\% improvement over RR/DRR and a 13.0\% improvement over QFQ. Notably, RR and DRR achieve identical fairness metrics, suggesting that for this workload, DRR's byte-level fairness mechanism does not provide advantages over simple round-robin. QFQ shows lower fairness than expected, possibly due to its virtual finish time approximation not perfectly handling the workload characteristics. MINMAX's superior performance demonstrates the effectiveness of its min-max approach in minimizing worst-case unfairness.
 
 \subsection{Slowdown Fairness}
 
@@ -594,6 +567,27 @@ QFQ & 0.8286 & 0.5023 & 0.3804 & 100\% \\
 
 Results are averaged across 14 different workload scenarios. MINMAX achieves the highest average fairness index (0.8555) and lowest coefficient of variation (0.3326), indicating superior and more consistent fairness performance.
 
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.32\textwidth}
+\includegraphics[width=\textwidth]{fairness_avg.png}
+\caption{Average fairness index per scheduler}
+\label{fig:fairness-index}
+\end{subfigure}\hfill
+\begin{subfigure}{0.32\textwidth}
+\includegraphics[width=\textwidth]{throughput_avg.png}
+\caption{Average throughput fairness ratio per scheduler}
+\label{fig:fairness-ratio}
+\end{subfigure}\hfill
+\begin{subfigure}{0.32\textwidth}
+\includegraphics[width=\textwidth]{latency_avg.png}
+\caption{Mean request latency per scheduler (ns)}
+\label{fig:latency-metrics}
+\end{subfigure}
+\caption{Aggregate fairness and performance metrics across all workloads for each scheduler. Higher Jain's index and fairness ratio indicate better fairness, while lower mean latency indicates better performance.}
+\label{fig:aggregate-metrics}
+\end{figure}
+
 % ------------------------------------------------------------------
 % 6. DISCUSSION
 % ------------------------------------------------------------------
@@ -616,6 +610,8 @@ Our experimental evaluation across 14 diverse workloads reveals several importan
 Across all 14 workloads, MINMAX consistently achieves the highest average fairness index (0.8555) and lowest coefficient of variation (0.3326). The low CV indicates that MINMAX not only achieves better fairness on average, but also maintains more consistent fairness across different workload types. This consistency is crucial for production systems where workload characteristics may vary over time.
 
 The identical performance of RR and DRR (0.8412 average fairness) is a significant finding. While DRR is theoretically superior for byte-level fairness, our results suggest that for many real-world workloads, the additional complexity may not provide measurable benefits. This has practical implications for system designers choosing between simple and complex schedulers.
+
+Among the evaluated schedulers, \textbf{FLIN} and \textbf{QFQ} exhibited slightly lower overall fairness. FLIN's average Jain's index (0.8387) was marginally below RR/DRR, indicating that its interference-focused approach did not translate to higher fairness in our workload mix. However, FLIN achieved a higher throughput fairness ratio (0.5318 vs. 0.5224 for RR/DRR) and the lowest mean request latency (Figure~\ref{fig:latency-metrics}), reflecting its strength in mitigating interference-induced slowdowns. QFQ delivered the lowest fairness index (0.8286) among the schedulers, suggesting that its weighted fair queueing approximation may be less effective for certain I/O patterns.
 
 \subsubsection{Performance vs. Fairness Trade-offs}
 
@@ -675,7 +671,7 @@ Several directions for future research emerge from this work:
     \item \textbf{Real-World Validation:} Validating findings on real hardware to confirm that simulation results translate to practical systems.
 \end{itemize}
 
-This work demonstrates that fairness-oriented scheduling is essential for predictable multi-tenant SSD performance and provides a foundation for future research in this area.
+This work demonstrates that fairness-oriented scheduling is essential for predictable multi-tenant SSD performance, and it advances the state-of-the-art by offering a comprehensive comparative evaluation of device-level schedulers. We believe our findings will inform the design of next-generation SSD controllers and provide a foundation for future research in this area.
 
 % ------------------------------------------------------------------
 % REFERENCES

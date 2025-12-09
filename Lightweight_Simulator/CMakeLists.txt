@@ -19,7 +19,6 @@ set(CORE_SOURCES
 
 add_library(ssd-fairness-core ${CORE_SOURCES})
 target_include_directories(ssd-fairness-core PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
