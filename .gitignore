@@ -191,6 +191,8 @@ MQSim/*_fairness_*.zip
 experiments/results/*.csv
 experiments/results/*.png
 !experiments/results/.gitkeep
+experiments/traces/*.csv
+experiments/experiments_summary.csv
 
 # Cursor/Editor specific
 .vscode/
