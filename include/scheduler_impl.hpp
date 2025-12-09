@@ -565,4 +565,270 @@ private:
     WearLevelFtl ftl_;
 };
 
+// MinMaxScheduler selects the flow with minimum (service + 1.0) / weight ratio.
+// This minimizes worst-case slowdown disparity across flows.
+class MinMaxScheduler : public Scheduler {
+    struct FlowState {
+        double weight = 1.0;
+        uint64_t service_bytes = 0;  // Total bytes served
+    };
+
+    std::vector<std::deque<Request>> queues_;
+    std::vector<FlowState> flow_state_;
+
+    FlowState& get_flow_state(int uid) {
+        if (uid >= static_cast<int>(flow_state_.size())) {
+            flow_state_.resize(uid + 1);
+        }
+        return flow_state_[uid];
+    }
+
+public:
+    void set_users(int n) override {
+        queues_.assign(std::max(n, 0), {});
+        flow_state_.assign(std::max(n, 0), {});
+    }
+
+    void set_weights(const std::vector<double>& w) override {
+        if (queues_.empty()) return;
+        for (size_t i = 0; i < queues_.size() && i < w.size(); ++i) {
+            flow_state_[i].weight = std::max(w[i], 1e-9);
+        }
+    }
+
+    void enqueue(const Request& r) override {
+        if (r.user_id < 0 || r.user_id >= static_cast<int>(queues_.size()))
+            return;
+        queues_[r.user_id].push_back(r);
+        detail::sched_debug("[minmax enqueue] uid=", r.user_id, " sz=", r.size_bytes);
+    }
+
+    // pick_user selects the flow with minimum (service + 1.0) / weight
+    std::optional<int> pick_user(double) override {
+        if (queues_.empty()) return std::nullopt;
+
+        int best_uid = -1;
+        double best_metric = std::numeric_limits<double>::max();
+
+        for (int uid = 0; uid < static_cast<int>(queues_.size()); ++uid) {
+            if (queues_[uid].empty()) continue;
+
+            FlowState& fs = flow_state_[uid];
+            // MINMAX metric: (service + 1.0) / weight
+            // Lower metric = more under-served, should be selected
+            double metric = (static_cast<double>(fs.service_bytes) + 1.0) / fs.weight;
+            if (metric < best_metric) {
+                best_metric = metric;
+                best_uid = uid;
+            }
+        }
+
+        if (best_uid < 0) return std::nullopt;
+        detail::sched_debug("[minmax pick] uid=", best_uid, " metric=", best_metric);
+        return best_uid;
+    }
+
+    std::optional<Request> pop(int uid) override {
+        if (uid < 0 || uid >= static_cast<int>(queues_.size()) || queues_[uid].empty())
+            return std::nullopt;
+
+        Request r = queues_[uid].front();
+        queues_[uid].pop_front();
+        
+        // Update service bytes
+        flow_state_[uid].service_bytes += r.size_bytes;
+        
+        detail::sched_debug("[minmax pop] uid=", uid, " sz=", r.size_bytes,
+                            " service=", flow_state_[uid].service_bytes, " remaining=", queues_[uid].size());
+        return r;
+    }
+
+    bool empty() const override {
+        for (const auto& q : queues_)
+            if (!q.empty()) return false;
+        return true;
+    }
+};
+
+// BfqLiteScheduler implements a simplified proportional-budget scheduler.
+// Each flow gets a budget proportional to its weight. Requests are served
+// while the flow has sufficient budget. Budgets refresh periodically.
+// This is a simplified version of BFQ adapted for SSD scheduling.
+class BfqLiteScheduler : public Scheduler {
+    struct FlowState {
+        double weight = 1.0;
+        double budget = 0.0;           // Current budget (bytes)
+        double max_budget = 0.0;      // Maximum budget per period (bytes)
+        double last_service_time = 0.0; // Last time flow was served
+        bool idle = false;             // True if flow has been idle
+    };
+
+    std::vector<std::deque<Request>> queues_;
+    std::vector<FlowState> flow_state_;
+    double base_budget_ = 65536.0;     // Base budget in bytes (default 64KB - increased for better throughput)
+    double idle_threshold_ = 0.1;      // Seconds before considered idle
+    double last_budget_refresh_ = 0.0; // Last time budgets were refreshed
+    double refresh_interval_ = 0.001;  // Budget refresh interval (1ms - more frequent)
+
+    void refresh_budgets(double now) {
+        // Refresh budgets for all flows with pending requests
+        bool any_active = false;
+        for (size_t i = 0; i < flow_state_.size(); ++i) {
+            auto& fs = flow_state_[i];
+            // Refresh if flow has requests (not idle) or was just reactivated
+            if (!queues_[i].empty() || !fs.idle) {
+                fs.max_budget = base_budget_ * fs.weight;
+                fs.budget = fs.max_budget; // Full refresh
+                fs.idle = false;
+                any_active = true;
+            }
+        }
+        if (any_active) {
+            last_budget_refresh_ = now;
+        }
+    }
+
+    void check_idle_flows(double now) {
+        for (size_t i = 0; i < flow_state_.size(); ++i) {
+            auto& fs = flow_state_[i];
+            // Mark as idle if queue is empty and hasn't been served recently
+            if (queues_[i].empty() && fs.last_service_time > 0 && 
+                now - fs.last_service_time > idle_threshold_) {
+                fs.idle = true;
+                // Reset budget for idle flows
+                fs.budget = 0.0;
+            }
+        }
+    }
+
+public:
+    void set_users(int n) override {
+        queues_.assign(std::max(n, 0), {});
+        flow_state_.assign(std::max(n, 0), {});
+        for (auto& fs : flow_state_) {
+            fs.max_budget = base_budget_ * fs.weight;
+            fs.budget = fs.max_budget;
+        }
+    }
+
+    void set_weights(const std::vector<double>& w) override {
+        if (queues_.empty()) return;
+        for (size_t i = 0; i < queues_.size() && i < w.size(); ++i) {
+            flow_state_[i].weight = std::max(w[i], 1e-9);
+            flow_state_[i].max_budget = base_budget_ * flow_state_[i].weight;
+            // Don't reset current budget, just update max
+        }
+    }
+
+    void enqueue(const Request& r) override {
+        if (r.user_id < 0 || r.user_id >= static_cast<int>(queues_.size()))
+            return;
+        
+        // If flow was idle and now has a request, mark as active
+        if (flow_state_[r.user_id].idle) {
+            flow_state_[r.user_id].idle = false;
+            flow_state_[r.user_id].budget = flow_state_[r.user_id].max_budget;
+        }
+        
+        queues_[r.user_id].push_back(r);
+        detail::sched_debug("[bfq-lite enqueue] uid=", r.user_id, " sz=", r.size_bytes,
+                            " budget=", flow_state_[r.user_id].budget);
+    }
+
+    // pick_user selects a flow that has budget >= request size
+    std::optional<int> pick_user(double now) override {
+        if (queues_.empty()) return std::nullopt;
+
+        // Refresh budgets periodically
+        if (now - last_budget_refresh_ > refresh_interval_) {
+            refresh_budgets(now);
+        }
+
+        // Check for idle flows
+        check_idle_flows(now);
+
+        // Find flow with budget >= head request size
+        // If no flow has sufficient budget, refresh and try again
+        int best_uid = -1;
+        double best_ratio = std::numeric_limits<double>::max();
+
+        for (int uid = 0; uid < static_cast<int>(queues_.size()); ++uid) {
+            if (queues_[uid].empty()) continue;
+            
+            auto& fs = flow_state_[uid];
+            
+            // If flow was idle but now has requests, reactivate it
+            if (fs.idle) {
+                fs.idle = false;
+                fs.budget = fs.max_budget;
+                fs.last_service_time = now;
+            }
+
+            const Request& req = queues_[uid].front();
+            double budget = fs.budget;
+
+            // Check if budget is sufficient
+            if (budget >= static_cast<double>(req.size_bytes)) {
+                // Prefer flows with lower budget/weight ratio (more under-served)
+                double ratio = budget / fs.weight;
+                if (ratio < best_ratio) {
+                    best_ratio = ratio;
+                    best_uid = uid;
+                }
+            }
+        }
+
+        // If no flow has budget, ensure all flows have sufficient budget and retry
+        if (best_uid < 0) {
+            for (int uid = 0; uid < static_cast<int>(queues_.size()); ++uid) {
+                if (!queues_[uid].empty()) {
+                    auto& fs = flow_state_[uid];
+                    const Request& req = queues_[uid].front();
+                    // Ensure budget is at least 2x the request size
+                    if (fs.budget < static_cast<double>(req.size_bytes) * 2.0) {
+                        fs.budget = std::max(fs.max_budget, static_cast<double>(req.size_bytes) * 2.0);
+                    }
+                    fs.idle = false;
+                    if (fs.budget >= static_cast<double>(req.size_bytes)) {
+                        best_uid = uid;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (best_uid < 0) return std::nullopt;
+        
+        // Update last service time for selected flow
+        flow_state_[best_uid].last_service_time = now;
+        
+        detail::sched_debug("[bfq-lite pick] uid=", best_uid, " budget=",
+                            flow_state_[best_uid].budget, " need=", queues_[best_uid].front().size_bytes);
+        return best_uid;
+    }
+
+    std::optional<Request> pop(int uid) override {
+        if (uid < 0 || uid >= static_cast<int>(queues_.size()) || queues_[uid].empty())
+            return std::nullopt;
+
+        Request r = queues_[uid].front();
+        queues_[uid].pop_front();
+
+        // Consume budget
+        auto& fs = flow_state_[uid];
+        fs.budget = std::max(0.0, fs.budget - static_cast<double>(r.size_bytes));
+        // Note: last_service_time updated in pick_user when flow is selected
+
+        detail::sched_debug("[bfq-lite pop] uid=", uid, " sz=", r.size_bytes,
+                            " remaining_budget=", fs.budget, " remaining=", queues_[uid].size());
+        return r;
+    }
+
+    bool empty() const override {
+        for (const auto& q : queues_)
+            if (!q.empty()) return false;
+        return true;
+    }
+};
+
 } // namespace ssd
