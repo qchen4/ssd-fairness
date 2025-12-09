@@ -12,15 +12,12 @@ Implementation of five scheduling algorithms for SSD fairness evaluation in both
 
 ## Project Structure
 
-```
-ssd-fairness/
-├── Lightweight_Simulator/    # C++17 lightweight simulator
-├── MQSim/                     # MQSim SSD simulator
-├── include/                   # Shared headers
-├── docs/                      # Documentation
-├── scripts/                   # Test and utility scripts
-└── README.md                  # This file
-```
+- [Lightweight_Simulator/](Lightweight_Simulator/) - C++17 lightweight simulator
+- [MQSim/](MQSim/) - MQSim SSD simulator
+- [include/](include/) - Shared headers
+- [docs/](docs/) - Documentation
+- [scripts/](scripts/) - Test and utility scripts
+- [README.md](README.md) - This file
 
 ## Quick Start
 
@@ -79,7 +76,7 @@ See `docs/README.md` for complete documentation index.
 - **Contention Workloads:** 183μs average latency (all schedulers)
 - **100% Request Completion:** All schedulers achieve perfect completion rates
 
-See `MQSim/FAIRNESS_RESULTS.md` and `MQSim/RESULTS_DESCRIPTION.md` for detailed analysis.
+See [MQSim/FAIRNESS_RESULTS.md](MQSim/FAIRNESS_RESULTS.md) and [MQSim/RESULTS_DESCRIPTION.md](MQSim/RESULTS_DESCRIPTION.md) for detailed analysis.
 
 ## Citation
 
