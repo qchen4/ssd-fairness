@@ -173,6 +173,14 @@ MQSim/results/*.log
 MQSim/results/*.zip
 !MQSim/results/.gitkeep
 
+# MQSim analysis results
+MQSim/parsed_results/
+MQSim/fairness_results/
+MQSim/visualizations/
+MQSim/fairness_visualizations/
+MQSim/*_test_results_*.zip
+MQSim/*_fairness_*.zip
+
 # Test data (optional - uncomment if test data shouldn't be tracked)
 # test_data/traces/*.csv
 

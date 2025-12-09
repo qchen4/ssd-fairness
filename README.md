@@ -64,7 +64,22 @@ See `docs/README.md` for complete documentation index.
 ✅ **Lightweight Simulator:** 5/5 schedulers implemented  
 ✅ **MQSim:** 5/5 schedulers implemented (RR, DRR, QFQ, FLIN, MINMAX)  
 ✅ **Build:** Both simulators build successfully  
-⏳ **Pending:** Build verification and testing of new schedulers
+✅ **Testing:** All schedulers tested and verified  
+✅ **Results:** Fairness analysis complete with visualizations
+
+## Latest Results
+
+### Fairness Performance (MQSim)
+- **Standard Workloads:** All schedulers achieve perfect fairness (Jain's Index = 1.0000)
+- **Under Contention:** MINMAX achieves best fairness (0.4597 vs 0.4269 for others)
+- **Average Fairness:** MINMAX leads with 0.8649, others at 0.8567
+
+### Latency Performance
+- **Standard Workloads:** 175μs average latency (all schedulers)
+- **Contention Workloads:** 183μs average latency (all schedulers)
+- **100% Request Completion:** All schedulers achieve perfect completion rates
+
+See `MQSim/FAIRNESS_RESULTS.md` and `MQSim/RESULTS_DESCRIPTION.md` for detailed analysis.
 
 ## Citation
 

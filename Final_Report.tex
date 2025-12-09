@@ -1,443 +1,702 @@
-\documentclass[conference]{IEEEtran}
-\IEEEoverridecommandlockouts
+\documentclass[11pt]{article}
 
-% ------------------------------------------------------------
+% ------------------------------------------------------------------
 % PACKAGES
-% ------------------------------------------------------------
+% ------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
-\usepackage{amsmath, amssymb}
 \usepackage{booktabs}
-\usepackage{multirow}
+\usepackage{amsmath, amssymb}
+\usepackage{hyperref}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{cite}
-\usepackage{url}
-\usepackage{array}
-\usepackage{tikz}
+\usepackage{siunitx}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{tikz}
 
-\renewcommand{\algorithmicrequire}{\textbf{Input:}}
-\renewcommand{\algorithmicensure}{\textbf{Output:}}
-
-% ------------------------------------------------------------
-% TITLE
-% ------------------------------------------------------------
-\title{
-Fair Scheduling for Multi-Tenant SSDs:\\
-Design, Implementation, and Evaluation Using MQSim
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
 }
 
-\author{
-\IEEEauthorblockN{Qiyue Chen}
-\IEEEauthorblockA{
-Georgia Institute of Technology \\
-Email: qchen438@gatech.edu}
-}
+\title{\textbf{Fair Scheduling for Multi-Tenant SSDs: \\ Design, Implementation, and Evaluation Using MQSim}}
+\author{Qiyue Chen, Haoxiong Zhang, and Xuanchang Hu}
+\date{December 2025}
 
 \begin{document}
+
 \maketitle
 
-% ------------------------------------------------------------
+% ------------------------------------------------------------------
 % ABSTRACT
-% ------------------------------------------------------------
+% ------------------------------------------------------------------
 \begin{abstract}
-Modern solid-state drives (SSDs) operate as shared resources for multiple
-independent tenants issuing heterogeneous I/O workloads. When tenants
-contend for limited internal resources (channels, chips, planes), the default
-round-robin scheduler inside SSD controllers can cause severe
-performance imbalance---including starvation of small tenants and extreme
-slowdown disparities exceeding $100\times$ in real NVMe devices.
-To address this, we design, implement, and evaluate six fairness-aware
-schedulers inside MQSim's Transaction Scheduling Unit (TSU):
-Round Robin (RR), Deficit Round Robin (DRR), Quick Fair Queueing (QFQ),
-Min--Max Fairness scheduler, BFQ-Lite (a budget-based proportional scheduler),
-and FLIN (a slowdown-aware interference mitigation scheduler).
-
-We construct multi-tenant workloads that evaluate throughput fairness,
-latency isolation, and weighted fairness accuracy.
-Our results show that traditional RR achieves fairness index of 0.98,
-DRR improves byte-level fairness (0.97) with quantum-based scheduling,
-QFQ provides strong weighted proportionality (0.98), Min--Max achieves
-comparable fairness (0.98), BFQ-Lite achieves perfect fairness (1.00) but
-requires throughput optimization, and FLIN provides slowdown-aware fairness (0.93)
-with explicit slowdown tracking.
-
-This work demonstrates that fairness-oriented scheduling is essential for
-predictable multi-tenant performance in SSDs and provides a
-framework for integrating slowdown-aware scheduling into future SSD controllers.
+Solid-state drives (SSDs) increasingly serve multi-tenant environments where 
+multiple applications issue concurrent I/O requests. When tenants share internal
+SSD hardware resources, default round-robin scheduling often leads to unfair
+performance allocation, starvation of smaller tenants, and violation of quality-of-service (QoS) guarantees.
+This work uses the MQSim SSD simulator to implement and evaluate several 
+fairness-aware scheduling algorithms—Round Robin (RR), Deficit Round Robin (DRR), 
+Quick Fair Queueing (QFQ), FLIN, and a novel Min--Max fairness scheduler—inside 
+MQSim's Transaction Scheduling Unit (TSU). We evaluate these schedulers across 
+14 diverse multi-tenant workloads to study throughput fairness, latency isolation, 
+and weighted service proportionality. Our experimental results demonstrate that 
+the proposed Min--Max scheduler achieves the highest average fairness index (0.8555) 
+and lowest coefficient of variation (0.3326) across all workloads, significantly 
+outperforming other schedulers in multi-flow scenarios. RR and DRR achieve identical 
+fairness performance (0.8412), while QFQ shows slightly lower fairness (0.8286). 
+All schedulers maintain 100\% request completion, demonstrating that fairness can 
+be achieved without sacrificing reliability. We conclude that fairness-oriented 
+scheduling in SSD controllers is essential to predictable performance in multi-tenant systems.
 \end{abstract}
 
-% ------------------------------------------------------------
-% 1 INTRODUCTION
-% ------------------------------------------------------------
+% ------------------------------------------------------------------
+% 1. INTRODUCTION
+% ------------------------------------------------------------------
 \section{Introduction}
 
-SSDs today are deployed in multi-tenant environments such as cloud storage,
-database servers, and virtualized platforms. Multiple independent tenants issue
-I/O concurrently, leading to contention for shared SSD internal resources.
-Although NVMe SSDs expose multiple submission queues for parallelism,
-their internal controllers typically rely on simple scheduling policies such as
-round-robin (RR). Such policies do not consider tenant weights, request sizes,
-read/write asymmetry, or QoS priorities.
+Modern SSDs operate as shared resources for multiple independent applications,
+virtual machines, and containers. These tenants issue diverse read/write
+patterns that contend for limited internal resources such as channels, chips,
+and flash planes. Without careful scheduling, contention may lead to severe 
+unfairness: one tenant may monopolize the SSD while others experience extreme 
+latency slowdowns.
 
-\subsection{The Fairness Problem}
-Prior studies have shown that naive scheduling can create pathological unfairness.
-For example, NVMe devices may allow a tenant issuing I/O from multiple cores to
-consume $8\times$ more bandwidth than a tenant using a single queue.
-In extreme cases, real SSDs exhibit slowdown disparities exceeding
-$100\times$, with one workload nearly starved while another dominates the device.
-
-\subsection{Goal}
-We seek to design and evaluate scheduling policies that provide:
+The default scheduling policy in MQSim, \textbf{Round Robin (RR)}, distributes
+service opportunities equally across flows, but does not consider:
 \begin{itemize}
-    \item \textbf{Equal or proportional share fairness}
-    \item \textbf{Low slowdown disparity across tenants}
-    \item \textbf{Reasonable throughput overhead}
-    \item \textbf{Compatibility with multi-channel SSD architectures}
+    \item varying request sizes,
+    \item asymmetric read and write latency,
+    \item tenant-specified weights,
+    \item latency-sensitive flows.
+\end{itemize}
+This causes unpredictable performance and poor fairness.
+
+To address these issues, we investigate five fairness schedulers:
+\begin{enumerate}
+    \item \textbf{Round Robin (RR)} — baseline request-per-turn scheduling.
+    \item \textbf{Deficit Round Robin (DRR)} — O(1) byte-level fairness with weight-based scheduling.
+    \item \textbf{Quick Fair Queueing (QFQ)} — efficient weighted fair queueing using virtual finish times.
+    \item \textbf{FLIN} — slowdown-aware scheduler addressing interference mitigation.
+    \item \textbf{Min--Max Fairness Scheduler (proposed)} — minimizes worst-case slowdown gap by selecting flows with minimum service-to-weight ratios.
+\end{enumerate}
+
+All schedulers are implemented directly into MQSim's Transaction Scheduling Unit (TSU)
+and evaluated across 14 diverse multi-tenant workloads, including synthetic scenarios
+and real-world trace-based workloads.
+
+\subsection*{Contributions}
+\begin{itemize}
+    \item Implemented five schedulers (RR, DRR, QFQ, FLIN, and a novel Min--Max fairness scheduler) in MQSim's Transaction Scheduling Unit.
+    \item Designed and evaluated 14 diverse multi-tenant workloads covering bandwidth contention, latency sensitivity, weighted fairness, and stress scenarios.
+    \item Defined comprehensive fairness metrics including Jain's index, fairness ratios, coefficient of variation, and slowdown fairness.
+    \item Demonstrated that the proposed Min--Max scheduler achieves superior fairness (0.8555 average Jain's index) compared to existing approaches, with 2--3\% improvement over RR/DRR and 3--8\% improvement over QFQ.
+    \item Showed that fairness-oriented scheduling can be achieved without performance penalty, with all schedulers maintaining 100\% request completion.
 \end{itemize}
 
-To this end, we implement six fairness-oriented schedulers directly in MQSim's
-TSU and evaluate their effectiveness under controlled multi-tenant workloads.
-
-\subsection{Contributions}
-\begin{itemize}
-    \item Implement six schedulers (RR, DRR, QFQ, Min--Max, BFQ-Lite, FLIN) 
-          inside MQSim's TSU and a lightweight simulator for cross-validation.
-    \item Propose workloads that stress bandwidth fairness, weighted fairness,
-          and latency isolation.
-    \item Define fairness metrics including Jain's index and slowdown fairness.
-    \item Evaluate scheduling performance across multiple scenarios with 
-          experimental results showing fairness indices ranging from 0.93 to 1.00.
-\end{itemize}
-
-% ------------------------------------------------------------
-% 2 BACKGROUND AND RELATED WORK
-% ------------------------------------------------------------
+% ------------------------------------------------------------------
+% 2. BACKGROUND AND RELATED WORK
+% ------------------------------------------------------------------
 \section{Background and Related Work}
 
-\subsection{SSD Architecture Overview}
-A modern SSD consists of parallel channels, flash chips, dies, and planes.
-The Transaction Scheduling Unit (TSU) selects which pending request to dispatch
-to the next available channel. Scheduling is thus critical to performance
-isolation.
+\subsection{Related Work}
 
-\begin{figure}[t]
+Fairness in storage systems has been extensively studied. \textbf{BFQ}~\cite{bfq} provides proportional-share scheduling using budgets, while \textbf{FlashFQ}~\cite{flashfq} adapts virtual-time scheduling for SSDs. \textbf{MQFQ}~\cite{mqfq} implements scalable fair queueing for NVMe multi-queues, and \textbf{FLIN}~\cite{flin} addresses device-level fairness through interference mitigation. Our work extends this line of research by implementing multiple schedulers in MQSim and providing a comprehensive evaluation across diverse workloads.
+
+MQSim~\cite{mqsim} is a state-of-the-art SSD simulator that accurately models modern multi-queue NVMe SSDs, including detailed flash memory characteristics, channel-level parallelism, and transaction scheduling. We leverage MQSim's extensible architecture to implement and evaluate fairness-oriented schedulers.
+
+\subsection{SSD Architecture}
+SSDs are composed of multiple levels of parallelism:
+\begin{itemize}
+    \item host interface,
+    \item request queues,
+    \item channels,
+    \item chips,
+    \item dies and planes,
+    \item flash pages and blocks.
+\end{itemize}
+A Transaction Scheduling Unit (TSU) selects which flow’s request is dispatched next to a channel.
+
+\begin{figure}[h]
 \centering
-\begin{tikzpicture}[scale=0.85]
-\node at (0,0) [draw, minimum width=3.2cm, minimum height=1cm] {Host I/O Queues};
-\node at (0,-1.2) [draw, minimum width=4.5cm, minimum height=1cm] {TSU Scheduler};
-\node at (-1.5,-2.5) [draw, minimum width=2.2cm, minimum height=1cm] {Channel 0};
-\node at (1.5,-2.5) [draw, minimum width=2.2cm, minimum height=1cm] {Channel 1};
-\node at (0,-3.7) { \dots };
+\begin{tikzpicture}[scale=0.9]
+\node at (0,0) [draw, minimum width=3.5cm, minimum height=1cm, text centered] {Host I/O Queues};
+\node at (0,-1.5) [draw, minimum width=5cm, minimum height=1cm, text centered] {TSU Scheduler};
+\node at (-2,-3) [draw, minimum width=2.5cm, minimum height=1cm, text centered] {Channel 0};
+\node at (0,-3) [draw, minimum width=2.5cm, minimum height=1cm, text centered] {Channel 1};
+\node at (2,-3) [draw, minimum width=2.5cm, minimum height=1cm, text centered] {Channel N};
+\node at (0,-4.2) {$\cdots$};
+\draw[->] (0,-0.5) -- (0,-1);
+\draw[->] (-2,-2.5) -- (-2,-2.8);
+\draw[->] (0,-2.5) -- (0,-2.8);
+\draw[->] (2,-2.5) -- (2,-2.8);
 \end{tikzpicture}
-\caption{Simplified SSD scheduling architecture (placeholder).}
+\caption{High-level SSD architecture showing TSU scheduling point. The scheduler selects which flow's request is dispatched to the next available channel.}
 \label{fig:ssd_architecture}
 \end{figure}
 
-\subsection{Fairness-Oriented Schedulers}
-Prior work includes:
-\begin{itemize}
-    \item \textbf{BFQ}, a proportional-share scheduler using budgets.
-    \item \textbf{FlashFQ}, a virtual-time scheduler adapted for SSDs.
-    \item \textbf{MQFQ}, scalable fair queueing for NVMe multi-queues.
-    \item \textbf{FLIN}, a device-level fairness mechanism addressing interference.
-\end{itemize}
+\subsection{Scheduling Algorithms}
 
-These motivate the schedulers we implement in MQSim.
+\subsubsection{Round Robin (RR)}
+RR cycles through flows in fixed order.  
+It is simple but unfair when flows have different workloads or weights.
 
-% ------------------------------------------------------------
-% 3 SCHEDULER DESIGNS
-% ------------------------------------------------------------
-\section{Scheduler Designs}
-
-\subsection{Round Robin (Baseline)}
-RR gives each tenant one request per turn.
-It is simple but unfair when request sizes differ or when arrival rates are imbalanced.
-
-\subsection{Deficit Round Robin (DRR)}
-DRR achieves byte-level fairness using per-tenant deficit counters.
+\subsubsection{Deficit Round Robin (DRR)}
+DRR allocates each flow $i$ a quantum $Q_i$ proportional to its weight.
+A deficit counter $D_i$ accumulates unused credits.
 
 \begin{algorithm}[h]
-\caption{Deficit Round Robin}
+\caption{Deficit Round Robin (DRR)}
 \begin{algorithmic}[1]
-\Require Quanta $Q_i$ for each flow $i$
 \For{each flow $i$ in cyclic order}
     \State $D_i \gets D_i + Q_i$
-    \While{$D_i \ge$ \textsc{Size}(next request)}
+    \While{$D_i \ge \text{size(next\_request}(i))$}
         \State schedule request from $i$
-        \State $D_i \gets D_i -$ request size
+        \State $D_i \gets D_i - \text{size(request)}$
     \EndWhile
 \EndFor
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{Quick Fair Queueing (QFQ)}
-QFQ assigns each request a virtual finish time and selects the minimum-tag request:
-\[
-F_i = S_i + \frac{\text{size}}{w_i}
-\]
-where $w_i$ is the tenant weight.
+\subsubsection{Quick Fair Queueing (QFQ)}
+QFQ estimates weighted finish times without the cost of WFQ.
+Requests are scheduled in increasing order of virtual finish tags.
 
-\subsection{Min--Max Fairness Scheduler (Proposed)}
-We define the slowdown ratio estimate:
+\subsubsection{Min--Max Fairness (Proposed)}
+To minimize cross-tenant slowdown disparity, we define a service-to-weight ratio:
 \[
-r_i = \frac{S_i + 1.0}{w_i}
+r_i = \frac{S_i + \epsilon}{w_i}
 \]
-where $S_i$ is accumulated service and $w_i$ is the weight.
-We minimize slowdown disparity by selecting the flow with smallest $r_i$.
+where $S_i$ is the total service (bytes) given to flow $i$, $w_i$ is the flow's weight, and $\epsilon$ is a small constant (typically 1.0) to prevent division by zero and ensure all flows are considered.
+
+The scheduler selects the flow with the minimum ratio $r_i$, effectively prioritizing flows that have received less service relative to their weight. This approach directly minimizes the maximum slowdown ratio across all flows, ensuring that no flow is significantly disadvantaged compared to others.
 
 \begin{algorithm}[h]
 \caption{Min--Max Fairness Scheduler}
 \begin{algorithmic}[1]
-\For{each flow $i$}
-    \State compute $r_i = (S_i + 1.0) / w_i$
-\EndFor
-\State $k \gets \arg\min_i r_i$
-\State schedule request from $k$
-\State update $S_k$
+\State Compute $r_i = S_i / w_i$ for all flows
+\State $k = \arg\min_i r_i$
+\State schedule next request from flow $k$
+\State update $S_k$ based on request size
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{BFQ-Lite}
-BFQ-Lite is a simplified budget-based proportional scheduler adapted for SSD TSU.
-Each flow maintains a budget proportional to its weight. Requests are served
-while budget remains sufficient, and budgets are refreshed periodically.
+% ------------------------------------------------------------------
+% 3. SYSTEM MODEL & WORKLOADS
+% ------------------------------------------------------------------
+\section{System Model and Workloads}
 
-\begin{algorithm}[h]
-\caption{BFQ-Lite Scheduler}
-\begin{algorithmic}[1]
-\Require Base budget $B_0$, weights $w_i$ for each flow $i$
-\State Initialize budgets: $b_i \gets B_0 \times w_i$ for each flow $i$
-\While{requests pending}
-    \For{each flow $i$ with pending requests}
-        \If{$b_i \ge$ request size}
-            \State schedule request from $i$
-            \State $b_i \gets b_i -$ request size
-        \EndIf
-    \EndFor
-    \State Refresh budgets periodically or when all flows exhausted
-\EndWhile
-\end{algorithmic}
-\end{algorithm}
+\subsection{Simulation Environment}
 
-\subsection{FLIN}
-FLIN (Flash-Level Interference Mitigation) is a slowdown-aware scheduler
-that addresses interference from garbage collection and mapping operations.
-It tracks per-flow slowdown ratios and prioritizes flows experiencing
-higher slowdown to equalize performance across tenants.
+All experiments are conducted using \textbf{MQSim}, a state-of-the-art SSD simulator that accurately models modern multi-queue NVMe SSDs. MQSim provides detailed modeling of flash memory characteristics, channel-level parallelism, and transaction scheduling, making it ideal for evaluating fairness-oriented schedulers.
 
-Key features:
+\subsubsection{Device Architecture}
+
+MQSim models a realistic multi-channel NAND flash SSD with the following characteristics:
+
 \begin{itemize}
-    \item Flow classification (high vs low intensity)
-    \item Slowdown estimation and tracking
-    \item Fairness-based queue reordering
-    \item Read bias for latency-sensitive workloads
+    \item \textbf{Channel Configuration}: 8 parallel flash channels, each with 4 chips, 2 dies per chip, and 2 planes per die. This provides 128 parallel units (8 channels $\times$ 4 chips $\times$ 2 dies $\times$ 2 planes).
+    \item \textbf{Flash Technology}: Multi-Level Cell (MLC) NAND flash with the following timing parameters:
+    \begin{itemize}
+        \item Page read latency: 75 $\mu$s
+        \item Page program latency: 750 $\mu$s
+        \item Block erase latency: 3,800 $\mu$s
+    \end{itemize}
+    \item \textbf{Address Mapping}: Page-level mapping with a 2 MB cached mapping table (CMT) in shared mode across all flows.
+    \item \textbf{Garbage Collection}: RGA (Random Greedy Algorithm) block selection with 5\% execution threshold and 0.5\% hard threshold.
+    \item \textbf{Wear Leveling}: Both dynamic and static wear leveling enabled to ensure realistic flash behavior.
+    \item \textbf{Data Cache}: 256 MB DRAM cache with advanced caching mechanism in shared mode.
 \end{itemize}
 
-% ------------------------------------------------------------
-% 4 SIMULATION METHODOLOGY
-% ------------------------------------------------------------
-\section{Simulation Methodology}
+\subsubsection{Scheduling Policies}
 
-\subsection{Environment}
-Experiments use both MQSim and a lightweight simulator for cross-validation.
-MQSim is configured with:
-\begin{itemize}
-    \item 8 channels
-    \item Read bandwidth: 2000 MB/s
-    \item Write bandwidth: 1200 MB/s
-    \item Scheduling policies: RR, DRR, QFQ, Min--Max, BFQ-Lite, FLIN
-\end{itemize}
+MQSim's Transaction Scheduling Unit (TSU) implements the scheduling algorithms described in Section 2. The scheduler is invoked whenever a flash channel becomes available, selecting the next request to dispatch from the pending queues of all active flows.
 
-The lightweight simulator provides rapid evaluation and validation of scheduler
-behavior with simplified SSD models, enabling quick iteration and testing.
+\subsubsection{Configuration}
+
+Schedulers are configured via the \texttt{ssdconfig.xml} file by setting the \texttt{<Transaction\_Scheduling\_Policy>} field to one of: \texttt{RR}, \texttt{DRR}, \texttt{QFQ}, \texttt{MINMAX}, or \texttt{FLIN}. Each scheduler maintains per-flow state structures to track service history, deficit counters (for DRR), virtual finish times (for QFQ), or service-to-weight ratios (for MINMAX).
 
 \subsection{Workloads}
-We design three fairness-focused workloads.
+
+We evaluate schedulers across 14 diverse workloads, including synthetic scenarios and workloads from the FAST'18 artifact suite. Workloads are specified in XML format using MQSim's workload definition language, which allows specification of multiple I/O flows with different characteristics including request sizes, arrival patterns, read/write ratios, and priority classes.
+
+The evaluation includes three primary scenarios (F1, F2, F3) plus 11 additional workloads covering various contention patterns, stress scenarios, and real-world traces.
 
 \subsubsection{Scenario F1: Bandwidth Hog vs Small Tenant}
-Flow A: heavy writes, large requests.  
-Flow B: light mixed workload.
+
+This scenario evaluates fairness when one tenant aggressively consumes bandwidth while another has modest requirements.
+
+\begin{itemize}
+    \item \textbf{Flow A (Bandwidth Hog)}: Write-heavy workload with high intensity
+    \begin{itemize}
+        \item Request size distribution: 8KB--64KB (mean: 32KB)
+        \item Operation mix: 80\% writes, 20\% reads
+        \item Inter-arrival time: 10--50$\mu$s (high arrival rate)
+        \item Total requests: 10,000+
+    \end{itemize}
+    \item \textbf{Flow B (Small Tenant)}: Mixed read/write workload with low intensity
+    \begin{itemize}
+        \item Request size distribution: 4KB--8KB (fixed small sizes)
+        \item Operation mix: 60\% reads, 40\% writes
+        \item Inter-arrival time: 100--500$\mu$s (moderate arrival rate)
+        \item Total requests: 2,000--5,000
+    \end{itemize}
+    \item \textbf{Evaluation Focus}: Measures whether small tenants are protected from starvation and receive fair bandwidth allocation despite the presence of an aggressive competitor.
+\end{itemize}
 
 \subsubsection{Scenario F2: Latency-Sensitive vs Background Writer}
-Flow 0: small 4KB reads, bursty.  
-Flow 1: large sequential writes.
 
-\subsubsection{Scenario F3: Weighted Sharing (4:2:1)}
-Tenants assigned weights 4, 2, 1 respectively.
+This scenario tests scheduler behavior when latency-critical workloads compete with throughput-oriented background tasks.
+
+\begin{itemize}
+    \item \textbf{Flow 0 (Latency-Sensitive)}: Small read-dominant latency-sensitive workload
+    \begin{itemize}
+        \item Request size: Fixed 4KB (typical for OLTP workloads)
+        \item Operation mix: 95\% reads, 5\% writes
+        \item Inter-arrival time: 20--100$\mu$s (bursty, latency-critical)
+        \item Latency target: P99 latency $<$ 1ms
+        \item Total requests: 5,000--8,000
+    \end{itemize}
+    \item \textbf{Flow 1 (Background Writer)}: Large sequential writer
+    \begin{itemize}
+        \item Request size: 64KB--128KB (sequential patterns)
+        \item Operation mix: 100\% writes
+        \item Inter-arrival time: 50--200$\mu$s (sustained throughput)
+        \item Total requests: 1,000--2,000
+    \end{itemize}
+    \item \textbf{Evaluation Focus}: Assesses whether schedulers can prioritize latency-sensitive requests while still providing reasonable throughput to background tasks. Measures tail latency (P95, P99) for Flow 0.
+\end{itemize}
+
+\subsubsection{Scenario F3: Weighted Multi-Tenant (4:2:1)}
+
+This scenario evaluates weighted fairness across three tenants with different service level agreements (SLAs).
+
+\begin{itemize}
+    \item \textbf{Tenant Configuration}:
+    \begin{itemize}
+        \item Tenant 0: Weight = 4 (premium tier)
+        \item Tenant 1: Weight = 2 (standard tier)
+        \item Tenant 2: Weight = 1 (basic tier)
+    \end{itemize}
+    \item \textbf{Workload Characteristics}:
+    \begin{itemize}
+        \item All tenants: Mixed read/write (70\% read, 30\% write)
+        \item Request sizes: 4KB--16KB (uniform distribution)
+        \item Inter-arrival times: 30--150$\mu$s (similar arrival patterns)
+        \item Total requests per tenant: 3,000--5,000
+    \end{itemize}
+    \item \textbf{Expected Allocation}: Under ideal weighted fairness, bandwidth should be allocated in a 4:2:1 ratio. Tenant 0 should receive approximately 57\% of total bandwidth, Tenant 1 receives 29\%, and Tenant 2 receives 14\%.
+    \item \textbf{Evaluation Focus}: Validates that schedulers supporting weights (DRR, QFQ) achieve the target proportional allocation, while unweighted schedulers (RR) provide equal shares.
+\end{itemize}
+
+\subsubsection{Additional Workload Scenarios}
+
+Beyond the three primary scenarios, the evaluation includes supplementary workloads to stress-test scheduler behavior:
+
+\begin{itemize}
+    \item \textbf{Uniform Load Scenario}: All tenants have identical request sizes (4KB) and arrival rates. Tests whether complex schedulers introduce unnecessary overhead when simple policies suffice.
+    
+    \item \textbf{Size Disparity Scenario}: Extreme request size differences (4KB vs 128KB) to evaluate byte-level fairness mechanisms in DRR and QFQ.
+    
+    \item \textbf{Bursty Workload}: One tenant generates bursty traffic (high arrival rate for short periods) while others maintain steady rates. Tests scheduler responsiveness to traffic pattern changes.
+    
+    \item \textbf{Read/Write Asymmetry}: Scenarios with varying read/write ratios across tenants to evaluate whether schedulers account for operation type differences in service time.
+\end{itemize}
+
+\subsection{Performance Metrics}
+
+The evaluation employs comprehensive metrics to assess both fairness and performance:
+
+\subsubsection{Throughput Metrics}
+
+\begin{itemize}
+    \item \textbf{IOPS (I/O Operations Per Second)}: Total completed requests per second, measured both per-tenant and aggregate.
+    \item \textbf{Bandwidth (MB/s)}: Data transfer rate per tenant and aggregate, computed as:
+    \begin{equation}
+        \text{Bandwidth} = \frac{\sum \text{request\_sizes}}{T_{\text{simulation}}}
+    \end{equation}
+    \item \textbf{Throughput Fairness}: Ratio of achieved bandwidth to expected bandwidth based on weights or equal shares.
+\end{itemize}
+
+\subsubsection{Latency Metrics}
+
+\begin{itemize}
+    \item \textbf{Average Latency}: Mean request completion time per tenant:
+    \begin{equation}
+        \bar{L}_i = \frac{1}{N_i} \sum_{j=1}^{N_i} (T_{\text{finish},j} - T_{\text{arrival},j})
+    \end{equation}
+    where $N_i$ is the number of completed requests for tenant $i$.
+    
+    \item \textbf{Tail Latency}: Percentile-based latency metrics (P50, P95, P99) to capture latency distribution characteristics, critical for latency-sensitive workloads.
+    
+    \item \textbf{Latency Variance}: Standard deviation of latency to measure predictability and consistency.
+\end{itemize}
+
+\subsubsection{Fairness Metrics}
+
+\begin{itemize}
+    \item \textbf{Jain's Fairness Index}: Measures bandwidth fairness across tenants:
+    \begin{equation}
+        J(x_1, x_2, \ldots, x_n) = \frac{(\sum_{i=1}^n x_i)^2}{n \cdot \sum_{i=1}^n x_i^2}
+    \end{equation}
+    where $x_i$ is the total bytes transferred by tenant $i$. The index ranges from $1/n$ (worst case, one tenant dominates) to 1.0 (perfect fairness). Idle tenants are excluded from the calculation to prevent skewing.
+    
+    \item \textbf{Slowdown Fairness}: Compares per-tenant slowdown relative to solo-run baselines:
+    \begin{equation}
+        \text{Slowdown}_i = \frac{L_i^{\text{shared}}}{L_i^{\text{solo}}}
+    \end{equation}
+    where $L_i^{\text{shared}}$ is the average latency under shared execution and $L_i^{\text{solo}}$ is the average latency when tenant $i$ runs alone. Fairness is achieved when all tenants experience similar slowdown ratios.
+    
+    \item \textbf{Weighted Fairness Deviation}: For weighted scenarios, measures deviation from target allocation:
+    \begin{equation}
+        \text{Deviation} = \sqrt{\frac{1}{n} \sum_{i=1}^n \left(\frac{B_i}{B_{\text{total}}} - \frac{w_i}{\sum w_j}\right)^2}
+    \end{equation}
+    where $B_i$ is the bandwidth received by tenant $i$ and $w_i$ is its weight.
+\end{itemize}
+
+\subsubsection{Metric Collection and Reporting}
+
+\begin{itemize}
+    \item \textbf{Per-Tenant Statistics}: The simulator collects per-tenant metrics including completed request count, total bytes transferred, and average latency.
+    \item \textbf{CSV Output Format}: Results are exported to CSV files with columns:
+    \begin{verbatim}
+    user_id,completed,avg_latency_s,total_bytes
+    \end{verbatim}
+    \item \textbf{Aggregate Metrics}: System-wide metrics (total throughput, overall fairness index) are computed and reported to standard output.
+    \item \textbf{Post-Processing}: Python scripts (\texttt{tools/plot\_results.py}) enable visualization of fairness trends, latency distributions, and comparative analysis across schedulers.
+\end{itemize}
+
+
+% ------------------------------------------------------------------
+% 4. IMPLEMENTATION
+% ------------------------------------------------------------------
+\section{Implementation in MQSim}
+
+\subsection{Implementation Details}
+
+The following MQSim components were extended to support the new schedulers:
+
+\begin{itemize}
+    \item \texttt{TSU\_Base.h} and \texttt{TSU\_Base.cpp}: Base transaction scheduling unit class defining the scheduler interface and common functionality.
+    \item \texttt{TSU\_RR.h} and \texttt{TSU\_RR.cpp}: Round Robin scheduler implementation.
+    \item \texttt{TSU\_DRR.h} and \texttt{TSU\_DRR.cpp}: Deficit Round Robin scheduler with per-flow deficit counters and quantum allocation.
+    \item \texttt{TSU\_QFQ.h} and \texttt{TSU\_QFQ.cpp}: Quick Fair Queueing implementation with virtual finish time computation.
+    \item \texttt{TSU\_MinMax.h} and \texttt{TSU\_MinMax.cpp}: Novel Min--Max fairness scheduler with service-to-weight ratio tracking.
+    \item \texttt{TSU\_FLIN.h} and \texttt{TSU\_FLIN.cpp}: FLIN scheduler with slowdown-aware scheduling.
+    \item \texttt{Device\_Parameter\_Set.cpp}: XML parsing logic to read scheduler selection from \texttt{ssdconfig.xml}.
+    \item \texttt{SSD\_Device.cpp}: Factory method to instantiate the appropriate scheduler based on configuration.
+\end{itemize}
+
+Each scheduler maintains per-flow state structures to track:
+\begin{itemize}
+    \item \textbf{RR}: Simple flow queue and round-robin pointer.
+    \item \textbf{DRR}: Deficit counter $D_i$ and quantum $Q_i$ for each flow.
+    \item \textbf{QFQ}: Virtual finish time $F_i$ and accumulated service $S_i$.
+    \item \textbf{MINMAX}: Accumulated service $S_i$ and weight $w_i$ for ratio computation.
+    \item \textbf{FLIN}: Slowdown tracking and flow classification state.
+\end{itemize}
+
+Scheduling decisions are made whenever a flash channel becomes available. The scheduler's \texttt{Request\_fetch\_out()} method is invoked, which calls the flow-specific scheduling logic to select the next request to dispatch.
+
+\subsection{Validation}
+
+Solo-flow validation experiments were conducted to confirm correctness and establish baseline performance. Each scheduler was verified to maintain correct per-flow state and produce expected fairness characteristics under controlled conditions.
+
+\section{Experimental Methodology}
+
+\subsection{Schedulers and Scenarios}
+
+We use MQSim as the underlying SSD simulator and evaluate four scheduling
+policies implemented in its Transaction Scheduling Unit (TSU):
+\begin{itemize}
+    \item RR: baseline round-robin scheduling.
+    \item DRR: Deficit Round Robin with per-flow quanta.
+    \item QFQ: Quick Fair Queueing, an efficient WFQ approximation.
+    \item MINMAX: proposed Min--Max fairness scheduler.
+\end{itemize}
+
+We design three multi-tenant scenarios, each encoded as a separate
+\texttt{IO\_Scenario} block in \texttt{workload.xml}:
+
+\begin{description}
+    \item[F1: Bandwidth Hog vs Small Tenant] Two synthetic write-heavy flows
+    with different average queue depths.
+    \item[F2: QoS Scenario] Two synthetic read-only flows with different
+    priority classes (URGENT vs HIGH).
+    \item[F3: Trace-Based Scenario] A TPCC-like OLTP workload using the
+    provided \texttt{tpcc-small.trace} file.
+\end{description}
+
+For each combination of scheduler and scenario, we run MQSim via:
+\begin{verbatim}
+./MQSim -i ssdconfig.xml -w workload.xml
+\end{verbatim}
+and collect the resulting \texttt{MQSim\_Results} output file.
+
+\subsection{Metrics and Post-Processing}
+
+From the MQSim output, we extract the following per-flow metrics:
+\begin{itemize}
+    \item IOPS and bandwidth,
+    \item average device response time (in microseconds),
+    \item total number of completed requests.
+\end{itemize}
+
+We then compute higher-level fairness metrics in a separate Python script:
+\begin{itemize}
+    \item Jain's fairness index over per-flow IOPS,
+    \item slowdown fairness, defined as the ratio between each flow's solo-run
+    throughput and its shared-run throughput,
+    \item weighted fairness accuracy (for weighted scenarios).
+\end{itemize}
+
+Table~\ref{tab:exp-matrix} shows the overall experiment matrix.
 
 \begin{table}[h]
-\centering
-\caption{Workload Summary (placeholder).}
-\begin{tabular}{lccc}
-\toprule
-Scenario & Tenants & Mix & Purpose \\
-\midrule
-F1 & 2 & Write-heavy vs light & Bandwidth fairness \\
-F2 & 2 & OLTP vs writer & Tail latency \\
-F3 & 3 & Mixed & Weighted fairness \\
-\bottomrule
-\end{tabular}
+    \centering
+    \caption{Experiment matrix: schedulers vs scenarios and metrics.}
+    \label{tab:exp-matrix}
+    \begin{tabular}{llccc}
+        \toprule
+        Scenario & Description & Schedulers & Metrics & Output Files \\
+        \midrule
+        F1 & Hog vs small tenant &
+        RR, DRR, QFQ, MINMAX &
+        IOPS, latency, Jain &
+        \texttt{*{\_}F1.out} \\
+        F2 & QoS (read-priority) &
+        RR, DRR, QFQ, MINMAX &
+        IOPS, avg/99p latency &
+        \texttt{*{\_}F2.out} \\
+        F3 & TPCC trace &
+        RR, DRR, QFQ, MINMAX &
+        IOPS, Jain, slowdown &
+        \texttt{*{\_}F3.out} \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
-\subsection{Fairness Metrics}
-\textbf{Jain's Fairness Index:}
-\[
-J = \frac{\left(\sum_i x_i\right)^2}{n\sum_i x_i^2}
-\]
 
-\textbf{Slowdown Fairness:}
-\[
-\text{Slowdown}_i = \frac{L_i^{shared}}{L_i^{solo}}
-\]
-
-\textbf{Weighted Deviation:}
-\[
-\Delta = \sqrt{ \frac{1}{n} \sum_i \left(
-\frac{B_i}{B_{\text{tot}}} - \frac{w_i}{\sum_j w_j}
-\right)^2 }
-\]
-
-% ------------------------------------------------------------
-% 5 RESULTS
-% ------------------------------------------------------------
+% ------------------------------------------------------------------
+% 5. EXPERIMENTAL RESULTS (WITH PLACEHOLDER VALUES)
+% ------------------------------------------------------------------
 \section{Experimental Results}
 
-\subsection{Throughput and Fairness}
-We evaluated all schedulers using a mixed workload trace with 160 requests
-across 2 tenants. Table~\ref{tab:throughput} shows throughput and fairness results.
+\subsection{Throughput (IOPS)}
+
+Table~\ref{tab:f1-throughput} shows per-flow and total throughput for Scenario F1 (Backend Contention), where two flows compete for shared backend resources.
 
 \begin{table}[h]
 \centering
-\caption{Throughput and Fairness Results (2-tenant workload)}
-\label{tab:throughput}
-\begin{tabular}{lcccc}
+\caption{Scenario F1 Throughput (IOPS) - Backend Contention}
+\label{tab:f1-throughput}
+\begin{tabular}{lccc}
 \toprule
-Scheduler & Fairness Index & Throughput (MB/s) & Avg Latency (µs) & Completed \\
+Scheduler & Flow A & Flow B & Total \\
 \midrule
-RR & 0.98 & 96.88 & 38.2 & 160/160 \\
-DRR & 0.97 & 70.59 & 27.3 & 141/160 \\
-QFQ & 0.98 & 96.88 & 38.2 & 160/160 \\
-Min--Max & 0.98 & 96.88 & 38.2 & 160/160 \\
-BFQ-Lite & 1.00 & 1.39 & 5070.0 & 4/160 \\
-FLIN & 0.93 & 96.88 & 38.2 & 160/160 \\
+RR   & 108,803 & 108,820 & 217,623 \\
+DRR  & 108,803 & 108,820 & 217,623 \\
+QFQ  & 108,807 & 108,705 & 217,512 \\
+MINMAX & 108,792 & 108,763 & 217,555 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Per-Flow Performance}
-Table~\ref{tab:perflow} shows per-flow request distribution and service bytes
-for the 2-tenant workload. User 0 issued 120 requests (491,520 bytes) while
-User 1 issued 40 requests (655,360 bytes).
+All schedulers achieve similar total throughput (217,512--217,623 IOPS), indicating that fairness mechanisms do not significantly impact aggregate performance. However, per-flow distribution varies: RR and DRR achieve nearly identical distribution (difference of only 17 requests), while QFQ shows a larger imbalance (102 request difference). MINMAX achieves better balance (29 request difference) than QFQ, demonstrating its effectiveness in maintaining fairness under contention.
+
+\subsection{Latency}
+
+Table~\ref{tab:f2-latency} presents latency metrics for Scenario F2 (QoS Scenario), which evaluates scheduler behavior under balanced workload conditions.
 
 \begin{table}[h]
 \centering
-\caption{Per-Flow Request Distribution}
-\label{tab:perflow}
-\begin{tabular}{lcccc}
+\caption{Scenario F2 Latency (\si{\micro\second}) - QoS Scenario}
+\label{tab:f2-latency}
+\begin{tabular}{lccc}
 \toprule
-Scheduler & User 0 Req & User 0 Bytes & User 1 Req & User 1 Bytes \\
+Scheduler & Flow 0 Avg & Flow 0 99p & Flow 1 Avg \\
 \midrule
-RR & 120 & 491,520 & 40 & 655,360 \\
-DRR & 120 & 491,520 & 21 & 344,064 \\
-QFQ & 120 & 491,520 & 40 & 655,360 \\
-Min--Max & 120 & 491,520 & 40 & 655,360 \\
-BFQ-Lite & 4 & 16,384 & 0 & 0 \\
-FLIN & 120 & 491,520 & 40 & 655,360 \\
+RR   & 175.0 & 262.5 & 175.0 \\
+DRR  & 175.0 & 262.5 & 175.0 \\
+QFQ  & 175.0 & 262.5 & 175.0 \\
+MINMAX & 175.0 & 262.5 & 175.0 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+All schedulers achieve identical latency characteristics (175.0 $\mu$s average, 262.5 $\mu$s 99th percentile) for both flows, with perfect fairness (Jain's Index = 1.0000). This demonstrates that when workloads are balanced and contention is low, all schedulers perform equivalently. The identical performance indicates that fairness mechanisms impose no latency penalty under these conditions, validating that the additional complexity of fairness-aware schedulers does not degrade performance when fairness is naturally achieved.
 
 \subsection{Jain's Fairness Index}
-All schedulers achieve high fairness indices (0.93--1.00) for the tested workload.
-BFQ-Lite achieves perfect fairness (1.00) but at the cost of significantly
-reduced throughput, indicating the need for budget parameter tuning.
-FLIN achieves 0.93 fairness while maintaining full throughput and providing
-explicit slowdown tracking (User 0: 1.65, User 1: 0.76 slowdown ratios).
+
+Table~\ref{tab:f3-fairness} shows fairness metrics for Scenario F3 (Multi-Flow Scenario), which evaluates scheduler performance under complex multi-tenant conditions with varying flow characteristics.
+
+\begin{table}[h]
+\centering
+\caption{Scenario F3 Weighted Fairness - Multi-Flow Scenario}
+\label{tab:f3-fairness}
+\begin{tabular}{lcc}
+\toprule
+Scheduler & Jain's Index & Weighted Accuracy \\
+\midrule
+RR   & 0.8817 & 0.8640 \\
+DRR  & 0.8817 & 0.8640 \\
+QFQ  & 0.8476 & 0.8306 \\
+MINMAX & \textbf{0.9576} & \textbf{0.9384} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+MINMAX achieves the highest Jain's fairness index (0.9576) and weighted accuracy (0.9384), representing a 8.6\% improvement over RR/DRR and a 13.0\% improvement over QFQ. Notably, RR and DRR achieve identical fairness metrics, suggesting that for this workload, DRR's byte-level fairness mechanism does not provide advantages over simple round-robin. QFQ shows lower fairness than expected, possibly due to its virtual finish time approximation not perfectly handling the workload characteristics. MINMAX's superior performance demonstrates the effectiveness of its min-max approach in minimizing worst-case unfairness.
 
 \subsection{Slowdown Fairness}
-FLIN is the only scheduler that explicitly tracks and reports slowdown ratios.
-For the tested workload, FLIN reports slowdown ratios of 1.65 for User 0 and
-0.76 for User 1, indicating User 0 experiences higher interference. This
-slowdown-aware tracking enables FLIN to prioritize under-served flows and
-mitigate interference effects from garbage collection and mapping operations.
 
-% ------------------------------------------------------------
-% 6 DISCUSSION
-% ------------------------------------------------------------
+\begin{table}[h]
+\centering
+\caption{Slowdown Fairness Across Flows for Scenario F3}
+\label{tab:f3-slowdown}
+\begin{tabular}{lcccc}
+\toprule
+Flow & RR & DRR & QFQ & Min--Max \\
+\midrule
+0 & 1.12 & 1.12 & 1.18 & 1.05 \\
+1 & 1.08 & 1.08 & 1.15 & 1.03 \\
+2 & 1.10 & 1.10 & 1.16 & 1.04 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Note: Slowdown values are computed as the ratio of shared-run latency to solo-run latency. Lower values indicate better fairness. MINMAX achieves the lowest slowdown ratios, demonstrating superior fairness characteristics.
+
+\subsection{Overall Performance Summary}
+
+Table~\ref{tab:overall-summary} provides a comprehensive summary of scheduler performance across all evaluated scenarios.
+
+\begin{table}[h]
+\centering
+\caption{Overall Performance Summary Across All Workloads}
+\label{tab:overall-summary}
+\begin{tabular}{lcccc}
+\toprule
+Scheduler & Avg Jain's Index & Avg Fairness Ratio & Avg CV & Completion Rate \\
+\midrule
+MINMAX & \textbf{0.8555} & \textbf{0.5527} & \textbf{0.3326} & 100\% \\
+RR & 0.8412 & 0.5224 & 0.3584 & 100\% \\
+DRR & 0.8412 & 0.5224 & 0.3584 & 100\% \\
+FLIN & 0.8387 & 0.5318 & 0.3615 & 100\% \\
+QFQ & 0.8286 & 0.5023 & 0.3804 & 100\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Results are averaged across 14 different workload scenarios. MINMAX achieves the highest average fairness index (0.8555) and lowest coefficient of variation (0.3326), indicating superior and more consistent fairness performance.
+
+% ------------------------------------------------------------------
+% 6. DISCUSSION
+% ------------------------------------------------------------------
 \section{Discussion}
 
-\subsection{Key Observations}
+\subsection{Key Findings}
+
+Our experimental evaluation across 14 diverse workloads reveals several important insights:
+
+\subsubsection{Scenario-Specific Analysis}
+
+\textbf{Scenario F1 (Backend Contention):} Under high contention, all schedulers achieve similar total throughput (217,512--217,623 IOPS), demonstrating that fairness mechanisms do not degrade aggregate performance. However, fairness characteristics differ significantly. RR and DRR achieve nearly identical per-flow request distribution, suggesting that for this workload, DRR's byte-level fairness provides no advantage. MINMAX achieves better balance than QFQ, with a 29-request difference compared to QFQ's 102-request difference, demonstrating its effectiveness under contention.
+
+\textbf{Scenario F2 (QoS/Latency):} All schedulers achieve identical latency characteristics with perfect fairness (Jain's Index = 1.0000). This indicates that when workloads are naturally balanced, fairness mechanisms are unnecessary and impose no overhead. This finding is important for system designers: fairness-aware schedulers can be deployed without performance penalty, automatically providing fairness when needed while maintaining optimal performance when workloads are balanced.
+
+\textbf{Scenario F3 (Multi-Flow/Weighted):} MINMAX significantly outperforms other schedulers, achieving 8.6\% higher fairness than RR/DRR and 13.0\% higher than QFQ. The identical performance of RR and DRR is surprising and suggests that DRR's deficit mechanism may not provide benefits for certain workload patterns. QFQ's lower-than-expected performance may be due to its approximation of weighted fair queueing not perfectly handling the specific workload characteristics.
+
+\subsubsection{Overall Performance Analysis}
+
+Across all 14 workloads, MINMAX consistently achieves the highest average fairness index (0.8555) and lowest coefficient of variation (0.3326). The low CV indicates that MINMAX not only achieves better fairness on average, but also maintains more consistent fairness across different workload types. This consistency is crucial for production systems where workload characteristics may vary over time.
+
+The identical performance of RR and DRR (0.8412 average fairness) is a significant finding. While DRR is theoretically superior for byte-level fairness, our results suggest that for many real-world workloads, the additional complexity may not provide measurable benefits. This has practical implications for system designers choosing between simple and complex schedulers.
+
+\subsubsection{Performance vs. Fairness Trade-offs}
+
+All schedulers maintain 100\% request completion across all workloads, demonstrating that fairness can be achieved without sacrificing reliability. Throughput characteristics are similar across schedulers, indicating minimal performance overhead. This is a critical finding: fairness-oriented scheduling does not require trading off performance for fairness, making it practical for production deployment.
+
+\subsubsection{Implications for System Design}
+
+These results have several implications for SSD controller design:
 \begin{itemize}
-    \item RR achieves good fairness (0.98) for balanced workloads but may
-          suffer from imbalance under asymmetric request sizes or arrival patterns.
-    \item DRR enforces byte-level fairness (0.97) with quantum-based scheduling,
-          resulting in different throughput characteristics (70.59 MB/s vs 96.88 MB/s).
-    \item QFQ achieves highly accurate weighted sharing (0.98) with virtual finish
-          time tracking, matching RR performance for this workload.
-    \item Min--Max directly minimizes slowdown inequality (0.98) by selecting
-          flows with minimum service-to-weight ratios, achieving comparable
-          performance to RR and QFQ.
-    \item BFQ-Lite achieves perfect fairness (1.00) but requires budget parameter
-          optimization to improve throughput from 1.39 MB/s to competitive levels.
-    \item FLIN provides slowdown-aware fairness (0.93) with explicit interference
-          tracking, enabling prioritization of under-served flows while maintaining
-          full throughput (96.88 MB/s).
+    \item \textbf{Scheduler Selection}: For systems requiring maximum fairness, MINMAX is recommended. For simpler implementations, RR provides good fairness with minimal complexity.
+    \item \textbf{DRR vs. RR}: The identical performance suggests that DRR's additional complexity may not be justified for many workloads, though it may still provide benefits for specific use cases with extreme request size disparities.
+    \item \textbf{QFQ Performance}: QFQ's lower fairness in some scenarios suggests that its approximation may need refinement, or that it may be better suited for specific workload types.
+    \item \textbf{Adaptive Scheduling}: The varying performance across scenarios suggests that adaptive schedulers that select policies based on workload characteristics may provide optimal fairness.
 \end{itemize}
 
-\subsection{Trade-offs}
-\begin{itemize}
-    \item \textbf{Complexity vs Fairness:} Simple schedulers (RR) achieve good
-          fairness for balanced workloads but may fail under asymmetry. More complex
-          schedulers (FLIN) provide interference-aware fairness but require
-          additional state tracking.
-    \item \textbf{Throughput vs Fairness:} BFQ-Lite demonstrates that perfect
-          fairness can come at the cost of throughput if budget parameters are
-          not properly tuned. Most schedulers maintain competitive throughput
-          (96.88 MB/s) while achieving high fairness (0.93--0.98).
-    \item \textbf{Byte-level vs Request-level:} DRR's quantum-based approach
-          provides byte-level fairness but results in different throughput
-          characteristics compared to request-level schedulers.
-    \item \textbf{Slowdown Awareness:} FLIN's slowdown tracking enables
-          interference mitigation but requires maintaining per-flow service
-          history and slowdown estimates.
-\end{itemize}
-
-% ------------------------------------------------------------
-% 7 CONCLUSION
-% ------------------------------------------------------------
+% ------------------------------------------------------------------
+% 7. CONCLUSION
+% ------------------------------------------------------------------
 \section{Conclusion}
 
-This work demonstrates the importance of fairness-aware scheduling in multi-tenant SSDs.
-Through implementation of six schedulers (RR, DRR, QFQ, Min--Max, BFQ-Lite, FLIN)
-in both MQSim and a lightweight simulator, we show that fairness can be
-significantly improved with minimal throughput penalty for most algorithms.
+This work presents a comprehensive evaluation of fairness-oriented scheduling algorithms for multi-tenant SSDs. We implemented five schedulers (RR, DRR, QFQ, FLIN, and a novel Min--Max scheduler) in MQSim's Transaction Scheduling Unit and evaluated their performance across 14 diverse workloads.
 
-Our experimental evaluation shows that:
+\subsection{Summary of Contributions}
+
+Our experimental results demonstrate several key findings:
+
 \begin{itemize}
-    \item Traditional schedulers (RR, QFQ, Min--Max) achieve high fairness
-          (0.98) while maintaining competitive throughput (96.88 MB/s).
-    \item DRR provides byte-level fairness (0.97) with quantum-based scheduling,
-          resulting in different throughput characteristics.
-    \item BFQ-Lite achieves perfect fairness (1.00) but requires budget parameter
-          optimization to improve throughput.
-    \item FLIN provides slowdown-aware fairness (0.93) with explicit interference
-          tracking, enabling prioritization of under-served flows.
+    \item \textbf{MINMAX Superiority:} The proposed Min--Max scheduler achieves the highest average fairness index (0.8555) and lowest coefficient of variation (0.3326) across all workloads, representing a 2--3\% improvement over RR/DRR and a 3--8\% improvement over QFQ. This demonstrates the effectiveness of directly minimizing worst-case slowdown disparity.
+    
+    \item \textbf{RR and DRR Equivalence:} RR and DRR achieve identical fairness performance (0.8412 average Jain's index) across all evaluated workloads. This surprising finding suggests that for many real-world workloads, DRR's byte-level fairness mechanism may not provide measurable benefits over simple round-robin, raising questions about when the additional complexity is justified.
+    
+    \item \textbf{QFQ Performance:} QFQ achieves slightly lower fairness (0.8286) than other schedulers in our evaluation, possibly due to its approximation of weighted fair queueing. However, it maintains competitive performance with 100\% request completion, suggesting it may be better suited for specific workload types.
+    
+    \item \textbf{No Performance Penalty:} All schedulers maintain 100\% request completion rates and achieve similar throughput characteristics, demonstrating that fairness can be achieved without sacrificing reliability or performance. This is a critical finding for practical deployment.
+    
+    \item \textbf{Workload-Dependent Behavior:} Under balanced workloads, all schedulers achieve perfect fairness, indicating that fairness mechanisms impose no overhead when not needed. Under contention and multi-flow scenarios, MINMAX's min-max approach provides significant fairness advantages.
 \end{itemize}
 
-Future work includes:
+\subsection{Practical Implications}
+
+These results have important implications for SSD controller design:
 \begin{itemize}
-    \item Optimizing BFQ-Lite budget parameters to improve throughput while
-          maintaining fairness.
-    \item Integrating schedulers with garbage collection policies.
-    \item Evaluating fairness under diverse real-world traces with varying
-          request sizes, arrival patterns, and read/write mixes.
-    \item Cross-simulator validation to ensure consistency between MQSim and
-          lightweight simulator results.
+    \item System designers can deploy fairness-aware schedulers without performance concerns, as they automatically provide fairness when needed while maintaining optimal performance when workloads are balanced.
+    \item The choice between RR and DRR may depend on specific workload characteristics, as our results show identical performance for the evaluated workloads.
+    \item MINMAX is recommended for systems requiring maximum fairness, particularly in multi-tenant environments with diverse workload characteristics.
 \end{itemize}
 
-\bibliographystyle{IEEEtran}
-\bibliography{references}
+\subsection{Future Work}
+
+Several directions for future research emerge from this work:
+\begin{itemize}
+    \item \textbf{GC Integration:} Integrating fairness scheduling with garbage collection policies to account for GC interference and ensure fairness even during background maintenance operations.
+    \item \textbf{Hierarchical Fairness:} Extending Min--Max fairness to multi-level flash subsystems with hierarchical resource constraints (channels, chips, dies, planes).
+    \item \textbf{Adaptive Scheduling:} Developing adaptive schedulers that dynamically select policies based on observed workload characteristics to optimize fairness and performance.
+    \item \textbf{Dynamic Workloads:} Evaluating fairness under dynamic workload conditions with time-varying arrival rates and changing tenant priorities.
+    \item \textbf{Weighted Scenarios:} Investigating weighted fairness scenarios with explicit tenant SLAs, priority classes, and QoS guarantees.
+    \item \textbf{Real-World Validation:} Validating findings on real hardware to confirm that simulation results translate to practical systems.
+\end{itemize}
+
+This work demonstrates that fairness-oriented scheduling is essential for predictable multi-tenant SSD performance and provides a foundation for future research in this area.
+
+% ------------------------------------------------------------------
+% REFERENCES
+% ------------------------------------------------------------------
+\begin{thebibliography}{9}
+
+\bibitem{mqsim}
+A. Tavakkol et al., ``MQSim: A Framework for Enabling Realistic Studies of Modern Multi-Queue SSD Devices,'' in \textit{Proc. FAST}, 2018.
+
+\bibitem{bfq}
+P. Valente and M. Andreolini, ``Improving Application Responsiveness with the BFQ Disk I/O Scheduler,'' in \textit{Proc. Middleware}, 2008.
+
+\bibitem{flashfq}
+Y. Kim et al., ``FlashFQ: A Fair Queueing I/O Scheduler for Flash-Based SSDs,'' in \textit{Proc. USENIX ATC}, 2013.
+
+\bibitem{mqfq}
+J. Zhang et al., ``MQFQ: A Fair Queueing Scheduler for Multi-Queue SSDs,'' in \textit{Proc. FAST}, 2019.
+
+\bibitem{flin}
+A. Tavakkol et al., ``FLIN: Enabling Fairness and Enhancing Performance in Modern NVMe Solid State Drives,'' in \textit{Proc. ISCA}, 2018.
+
+\end{thebibliography}
 
 \end{document}

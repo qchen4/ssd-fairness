@@ -45,3 +45,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(ssd-fairness-tests PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME ssd-fairness-tests COMMAND ssd-fairness-tests)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(ssd-fairness-tests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME ssd-fairness-tests COMMAND ssd-fairness-tests)
