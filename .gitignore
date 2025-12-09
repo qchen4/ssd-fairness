@@ -1,0 +1,181 @@
+# Compiled Object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+ssd-fairness
+ssd-fairness-tests
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+CTestTestfile.cmake
+Testing/
+CMakeConfigureLog.yaml
+compile_commands.json
+
+# Build directories
+build/
+Build/
+BUILD/
+_build/
+.cmake/
+
+# IDE - Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sdf
+
+# IDE - CLion
+.idea/
+cmake-build-*/
+
+# IDE - Code::Blocks
+*.depend
+*.layout
+
+# IDE - Qt Creator
+*.pro.user
+*.pro.user.*
+
+# IDE - Vim
+*.swp
+*.swo
+*~
+
+# IDE - Emacs
+*~
+\#*\#
+.\#*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Results and output files
+results/*.csv
+results/*.png
+results/*.pdf
+!results/.gitkeep
+Lightweight_Simulator/results/*.csv
+Lightweight_Simulator/results/*.png
+Lightweight_Simulator/results/*.pdf
+Lightweight_Simulator/plots/*.png
+Lightweight_Simulator/build/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup
+*.orig
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Trace files (optional - comment out if you want to track them)
+# traces/*.csv
+# traces/*.gz
+
+# Debug files
+*.dSYM/
+*.pdb
+
+# Coverage reports
+*.gcov
+*.gcda
+*.gcno
+coverage/
+*.lcov
+
+# Valgrind
+*.vgcore
+valgrind-out.*
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+
+# LaTeX auxiliary files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.out
+*.nav
+*.snm
+*.vrb
+*.bcf
+*.run.xml
+
+# MQSim build artifacts (if any)
+MQSim/build/
+MQSim/*.o
+MQSim/*.a
+MQSim/*.so
+
+# Test data (optional - uncomment if test data shouldn't be tracked)
+# test_data/traces/*.csv
+
+# Experiment results (optional)
+experiments/results/*.csv
+experiments/results/*.png
+!experiments/results/.gitkeep
+
+# Cursor/Editor specific
+.cursor/
+.vscode/
+*.code-workspace
+
